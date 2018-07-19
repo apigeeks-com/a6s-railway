@@ -22,7 +22,7 @@ export class Write_File_StationHandler extends BaseStationHandler {
             .object()
             .keys({
                 path: Joi.string().required(),
-                content: Joi.string().optional(),
+                content: Joi.string().required(),
             })
             .required()
             .options({
