@@ -18,19 +18,17 @@ export class Write_File_StationHandler extends BaseStationHandler {
      * @return {ObjectSchema}
      * @constructor
      */
-    static OPTIONS_SCHEMA() {
-        return Joi
-            .object()
-            .keys({
-                path: Joi.string().required(),
-                content: Joi.string().required(),
-            })
-            .required()
-            .options({
-                abortEarly: true,
-            })
-        ;
-    }
+    static OPTIONS_SCHEMA = Joi
+        .object()
+        .keys({
+            path: Joi.string().required(),
+            content: Joi.string().required(),
+        })
+        .required()
+        .options({
+            abortEarly: true,
+        })
+    ;
 
     /**
      * @param options
