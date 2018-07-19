@@ -2,6 +2,7 @@ import * as Joi from 'joi';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
+import * as util from 'util';
 import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import {BaseStationHandler} from '../../models';
 
@@ -55,6 +56,6 @@ export class Write_File_StationHandler extends BaseStationHandler {
             mkdirp.sync(baseDir);
         }
 
-        await fs.writeFile.__promisify__(options.path, options.content);
+        await util.promisify(fs.writeFile)(options.path, options.content);
     }
 }
