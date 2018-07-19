@@ -1,0 +1,12 @@
+version: 1.0.0
+station:
+  name: a6s.sequence
+  options:
+    - name: k8s.generic.secret.create
+      options:
+        name: sample-helm-chart
+        inline:
+          test.json: |-
+            {
+              "test": true
+            }

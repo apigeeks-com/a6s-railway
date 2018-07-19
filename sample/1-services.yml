@@ -1,0 +1,7 @@
+version: 1.0.0
+station:
+  name: a6s.parallel
+  options:
+    - name: a6s.external
+      options:
+        file: sample-helm-chart.yml
