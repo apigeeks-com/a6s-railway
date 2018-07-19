@@ -11,6 +11,7 @@ const assert = require('assert');
 @suite class Write_File_StationHandler_TestSuite {
     @test async validationPassed(): Promise<void> {
         const filePath = path.resolve('foo.json');
+        const content = {foo: 'boo'};
 
         const map = <IRailwayMap> {
             version: '1.0.0',
@@ -19,7 +20,7 @@ const assert = require('assert');
                 name: 'k8s.file.write',
                 options: {
                     path: filePath,
-                    content: JSON.stringify({foo: 'boo'}),
+                    content: JSON.stringify(content),
                 }
             }
         };
@@ -32,7 +33,14 @@ const assert = require('assert');
 
         if (!fs.existsSync(filePath)) {
             assert(false);
+
+            return;
         }
+
+        assert.deepStrictEqual(
+            JSON.parse(fs.readFileSync(filePath).toString()),
+            content
+        );
 
         fs.unlinkSync(filePath);
     }
