@@ -1,6 +1,6 @@
 {
   "name": "a6s-railway",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "K8s deployment orchestration tool.",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "start": "node dist/cli.js",
     "test": "nyc --reporter=html --reporter=text mocha",
     "build": "rimraf ./dist/ && tsc",
-    "prepublish": "npm run build && npm run lint",
+    "prepublishOnly": "npm run build && npm i --production",
     "lint": "tslint -c tslint.json 'lib/**/*.ts' 'test/**/*.ts'"
   },
   "bin": {
