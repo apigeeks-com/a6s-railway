@@ -25,7 +25,7 @@ export class ProcessReporter {
      */
     public setReport(
         station: IRailWayStation,
-        report: IReportRecord | undefined,
+        report: IReportRecord[] | void,
         options: any,
     ) {
         const handler = this.handlers.get(this.generateProcessId(station));
