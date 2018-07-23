@@ -2,7 +2,7 @@ import {IRailWayResolver, IRailWayResolver_JOI_SCHEMA} from './IRailWayResolver'
 import * as Joi from 'joi';
 
 interface IRailWayStation extends IRailWayResolver {
-    resolvers?: {[key: string]: IRailWayStation};
+    resolvers?: {[key: string]: IRailWayResolver};
 }
 
 const IRailWayStation_JOI_SCHEMA = IRailWayResolver_JOI_SCHEMA.keys({

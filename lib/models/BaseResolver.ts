@@ -20,5 +20,5 @@ export abstract class BaseResolver {
      * @param resolvers
      * @returns {Promise<void>}
      */
-    async run(name: string, options: any, sharedContext: object, resolvers: {[name: string]: BaseResolver}): Promise<void> {} // tslint:disable-line
+    async run(name: string, options: any, sharedContext: object, resolvers: {[name: string]: BaseResolver}): Promise<any> {} // tslint:disable-line
 }

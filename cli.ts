@@ -6,9 +6,9 @@ import {A6sRailway} from './lib/A6sRailway';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import * as fs from 'fs';
-import {A6sRailwayUtil} from './lib/services/utils';
+import {A6sRailwayUtil, ProcessReporter} from './lib/services/utils';
 import {IOC} from './lib/services';
-import {ProcessReporter} from './lib/services/utils';
+import {ShellCmdStdOutResolver, ContextResolver} from './lib/resolvers';
 
 // prepare commander
 commander
@@ -62,6 +62,10 @@ init().then((configMap) => {
 
             new plugins.Write_File_StationHandler(),
 
+            // resolvers
+            new ContextResolver(),
+            new ShellCmdStdOutResolver(),
+
         ])
         .execute()
         .then(() => {
@@ -81,5 +85,3 @@ init().then((configMap) => {
             process.exit(1);
         });
 });
-
-
