@@ -6,6 +6,7 @@ import {render} from 'ejs';
 import {BaseStationHandler, BaseResolver} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import {isAbsolute, resolve} from 'path';
+import {ProcessReporter} from './';
 
 export class A6sRailwayUtil {
     private sharedContext: any;
@@ -36,7 +37,7 @@ export class A6sRailwayUtil {
         return path;
     }
 
-    async processStation(s: IRailWayStation, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<void> {
+    async processStation(s: IRailWayStation, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<IRailWayStation> {
         const handler = handlers[s.name];
 
         if (!handler) {
@@ -63,10 +64,14 @@ export class A6sRailwayUtil {
 
         if (shouldRun) {
             console.log(`-> Executing ${s.name}`);
-            await handler.run(options, handlers, resolvers);
+            const result = await handler.run(options, handlers, resolvers);
+
+            ProcessReporter.setReport(s, result, options);
         } else {
             console.log(`-> Execution skipped for ${s.name}`);
         }
+
+        return s;
     }
 
     readStringFile(file: string): Promise<string> {
