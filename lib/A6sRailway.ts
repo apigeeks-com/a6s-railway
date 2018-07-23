@@ -1,7 +1,8 @@
-import {IRailwayMap} from './interfaces';
+import {IRailwayMap, IRailWayStation} from './interfaces';
 import {BaseResolver, BaseStationHandler} from './models';
-import {A6sRailwayUtil} from './services/utils';
+import {A6sRailwayUtil, ProcessReporter} from './services/utils';
 import {IOC} from './services';
+import * as path from "path";
 
 export type A6sRailwayStationHandlersRegistry = {[name: string]: BaseStationHandler};
 export type A6sRailwayResolverRegistry = {[name: string]: BaseResolver};
@@ -30,6 +31,10 @@ export class A6sRailway {
         return this;
     }
 
+    /**
+     * @param {BaseStationHandler | BaseResolver} entry
+     * @private
+     */
     private _register(entry: BaseStationHandler | BaseResolver) {
         if (entry instanceof BaseStationHandler) {
             this.handlers[entry.getName()] = entry;
