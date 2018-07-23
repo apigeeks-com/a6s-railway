@@ -26,6 +26,7 @@ export class K8sHelmUtil {
 
         return {
             stdout: result.stdout,
+            stderr: result.stderr,
             cmd,
         };
     }
@@ -84,6 +85,7 @@ export class K8sHelmUtil {
 
         return {
             stdout: result.stdout,
+            stderr: result.stderr,
             cmd: cmd.join(' '),
         };
     }

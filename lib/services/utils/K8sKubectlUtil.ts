@@ -50,6 +50,7 @@ export class K8sKubectlUtil {
 
         return {
             stdout: result.stdout,
+            stderr: result.stderr,
             cmd,
         };
     }
@@ -72,6 +73,7 @@ export class K8sKubectlUtil {
 
         return {
             stdout: result.stdout,
+            stderr: result.stderr,
             cmd,
         };
     }
