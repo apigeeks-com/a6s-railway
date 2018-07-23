@@ -2,30 +2,18 @@ import {IRailwayMap} from './interfaces';
 import {BaseResolver, BaseStationHandler} from './models';
 import {A6sRailwayUtil} from './services/utils';
 import {IOC} from './services';
-import {dirname} from 'path';
 
 export type A6sRailwayStationHandlersRegistry = {[name: string]: BaseStationHandler};
 export type A6sRailwayResolverRegistry = {[name: string]: BaseResolver};
 
 export class A6sRailway {
-
     private handlers: A6sRailwayStationHandlersRegistry;
     private resolvers: A6sRailwayResolverRegistry;
-
-    private map: IRailwayMap;
-    private mapFile: string;
-
     private a6sRailwayUtil: A6sRailwayUtil;
 
     constructor(
-        map: IRailwayMap | string
+        private map: IRailwayMap
     ) {
-        if (typeof map === 'string') {
-            this.mapFile = map;
-        } else {
-            this.map = map;
-        }
-
         this.handlers = {};
         this.resolvers = {};
         this.a6sRailwayUtil = IOC.get(A6sRailwayUtil);
@@ -71,18 +59,11 @@ export class A6sRailway {
 
     /**
      * Execute pipeline
-     * @returns {Promise<A6sRailway>}
+     * @returns {Promise<IRailwayMap>}
      */
-    async execute(): Promise<A6sRailway> {
-        if (!this.map) {
-            this.map = await this.a6sRailwayUtil.readYamlFile(this.mapFile);
-            const ctx = this.a6sRailwayUtil.getSharedContext();
-            ctx.pwd = dirname(this.mapFile);
-        }
+    async execute(): Promise<IRailwayMap> {
+        this.map.station = await this.a6sRailwayUtil.processStation(this.map.station, this.handlers, this.resolvers);
 
-        // execute
-        await this.a6sRailwayUtil.processStation(this.map.station, this.handlers, this.resolvers);
-
-        return this;
+        return this.map;
     }
 }
