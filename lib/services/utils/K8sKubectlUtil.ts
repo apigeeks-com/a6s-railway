@@ -1,4 +1,4 @@
-import {IK8sObject} from '../../interfaces';
+import {IK8sObject, IProcess} from '../../interfaces';
 import * as jsyaml from 'js-yaml';
 import {ChildProcessUtil} from './ChildProcessUtil';
 import {IOC} from '../IOC';
@@ -36,14 +36,22 @@ export class K8sKubectlUtil {
      * @param {IK8sObject} k8sObject
      * @returns {Promise<void>}
      */
-    async createObject(k8sObject: IK8sObject): Promise<void> {
+    async createObject(k8sObject: IK8sObject): Promise<IProcess> {
         const tmpFile = await tmp.file();
         fs.writeFileSync(tmpFile.path, jsyaml.dump(k8sObject), 'utf8');
-        const result = await this.childProcessUtil.exec('kubectl create -f ' + tmpFile.path);
+
+        const cmd = 'kubectl create -f ' + tmpFile.path;
+
+        const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
             throw new Error(`Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
         }
+
+        return {
+            stdout: result.stdout,
+            cmd,
+        };
     }
 
     /**
@@ -51,14 +59,21 @@ export class K8sKubectlUtil {
      * @param {IK8sObject} k8sObject
      * @return {Promise<void>}
      */
-    async applyObject(k8sObject: IK8sObject): Promise<void> {
+    async applyObject(k8sObject: IK8sObject): Promise<IProcess> {
         const tmpFile = await tmp.file();
         fs.writeFileSync(tmpFile.path, jsyaml.dump(k8sObject), 'utf8');
-        const result = await this.childProcessUtil.exec('kubectl apply -f ' + tmpFile.path);
+
+        const cmd = 'kubectl apply -f ' + tmpFile.path;
+        const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
             throw new Error(`Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
         }
+
+        return {
+            stdout: result.stdout,
+            cmd,
+        };
     }
 
     /**
