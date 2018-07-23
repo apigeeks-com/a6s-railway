@@ -1,0 +1,11 @@
+.idea/
+*.iml
+
+tsconfig.json
+tslint.json
+*.ts
+
+lib/
+node_modules/
+sample/
+test/
