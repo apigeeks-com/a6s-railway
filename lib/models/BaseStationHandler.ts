@@ -1,4 +1,5 @@
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../A6sRailway';
+import {IReportRecord} from '../interfaces';
 
 export abstract class BaseStationHandler {
     /**
@@ -41,5 +42,5 @@ export abstract class BaseStationHandler {
      * @param resolvers
      * @returns {Promise<void>}
      */
-    async run(options: any, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<any> {} // tslint:disable-line
+    async run(options: any, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<IReportRecord[] | void> {} // tslint:disable-line
 }

@@ -1,5 +1,5 @@
 import {IRailWayStation} from '../../interfaces/core';
-import {IProcess} from '../../interfaces';
+import {IReportRecord} from '../../interfaces';
 
 export class ProcessReporter {
     private handlers: Map<string, any> = new Map();
@@ -20,12 +20,12 @@ export class ProcessReporter {
 
     /**
      * @param {IRailWayStation} station
-     * @param {IProcess | undefined} report
+     * @param {IReportRecord | undefined} report
      * @param options
      */
     public setReport(
         station: IRailWayStation,
-        report: IProcess | undefined,
+        report: IReportRecord | undefined,
         options: any,
     ) {
         const handler = this.handlers.get(this.generateProcessId(station));

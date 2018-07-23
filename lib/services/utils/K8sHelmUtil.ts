@@ -1,4 +1,4 @@
-import {IHelmDeploymentInfo, IHelmChartInstall, IProcess} from '../../interfaces';
+import {IHelmDeploymentInfo, IHelmChartInstall, IReportRecord} from '../../interfaces';
 import * as yaml from 'js-yaml';
 import {flatten} from 'flat';
 import {ChildProcessUtil} from './ChildProcessUtil';
@@ -19,7 +19,7 @@ export class K8sHelmUtil {
      * @param {string} namespace
      * @return {Promise<void>}
      */
-    async remove(name: string, namespace: string): Promise<IProcess> {
+    async remove(name: string, namespace: string): Promise<IReportRecord> {
         const cmd = `helm del --namespace ${namespace} --purge ${name}`;
         const result = await this.childProcessUtil.exec(cmd);
 
@@ -39,7 +39,7 @@ export class K8sHelmUtil {
      * @param {IHelmChartInstall} config
      * @return {Promise<void>}
      */
-    async updateOrInstall(config: IHelmChartInstall): Promise<IProcess> {
+    async updateOrInstall(config: IHelmChartInstall): Promise<IReportRecord> {
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
 
         const cmd = [

@@ -1,5 +1,5 @@
 import {BaseStationHandler} from '../../models';
-import {IK8sObject, IProcess} from '../../interfaces';
+import {IK8sObject, IReportRecord} from '../../interfaces';
 import {IOC, K8sKubectlUtil} from '../../services';
 import * as Joi from 'joi';
 import {IK8sObject_JOI_SCHEMA} from '../../interfaces/k8s';
@@ -29,8 +29,10 @@ export class K8s_Kubectl_ApplyObject_StationHandler extends BaseStationHandler {
         }
     }
 
-    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IProcess> {
+    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
         // create object
-        return await this.k8sKubectlUtil.applyObject(<IK8sObject>options);
+        return [
+            await this.k8sKubectlUtil.applyObject(<IK8sObject>options)
+        ];
     }
 }

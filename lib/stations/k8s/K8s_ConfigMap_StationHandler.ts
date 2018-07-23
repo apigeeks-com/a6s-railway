@@ -1,4 +1,4 @@
-import {IK8sObject, IProcess} from '../../interfaces';
+import {IK8sObject, IReportRecord} from '../../interfaces';
 import * as Joi from 'joi';
 import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import * as fs from 'fs';
@@ -59,7 +59,7 @@ export class K8s_ConfigMap_StationHandler extends K8s_Kubectl_ApplyObject_Statio
      * @param {A6sRailwayStationHandlersRegistry} plugins
      * @return {Promise<void>}
      */
-    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IProcess> {
+    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
         const object: IK8sObject = {
             apiVersion: 'v1',
             kind: 'ConfigMap',
