@@ -1,2 +1,2 @@
-# should be available with <%- ctx.test -%>
+# should be available with <%- context.test -%>
 test: true

@@ -32,6 +32,18 @@ export class A6sRailway {
     }
 
     /**
+     * Override resolvers
+     *
+     * @param {A6sRailwayResolverRegistry} resolvers
+     * @return {A6sRailway}
+     */
+    public setResolvers(resolvers: A6sRailwayResolverRegistry): A6sRailway {
+        this.resolvers = resolvers;
+
+        return this;
+    }
+
+    /**
      * @param {BaseStationHandler | BaseResolver} entry
      * @private
      */
