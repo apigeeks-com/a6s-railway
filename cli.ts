@@ -6,7 +6,7 @@ import {A6sRailway} from './lib/A6sRailway';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import * as fs from 'fs';
-import {A6sRailwayUtil, ProcessReporter} from './lib/services/utils';
+import {A6sRailwayUtil, K8sHelmUtil, ProcessReporter} from './lib/services/utils';
 import {IOC} from './lib/services';
 import {ShellCmdStdOutResolver, ContextResolver} from './lib/resolvers';
 
@@ -29,6 +29,8 @@ if (!commander.map) {
     process.exit(1);
 }
 
+
+const processReporter = IOC.get(ProcessReporter);
 const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
 
 const init = async () => {
@@ -77,7 +79,7 @@ init().then((configMap) => {
                     mkdirp.sync(baseDir);
                 }
 
-                fs.writeFileSync(commander.output, JSON.stringify(ProcessReporter.getReport(), null, '   '));
+                fs.writeFileSync(commander.output, JSON.stringify(processReporter.getReport(), null, '   '));
             }
         })
         .catch(e => {

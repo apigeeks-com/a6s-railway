@@ -1,6 +1,7 @@
 import {BaseStationHandler} from '../../models';
 import {IHelmChartInstall, IProcess} from '../../interfaces';
-import {K8sHelmUtil, IOC} from '../../services';
+import {K8sHelmUtil} from '../../services/utils';
+import {IOC} from '../../services';
 import * as Joi from 'joi';
 import {IHelmChartInstall_JOI_SCHEMA} from '../../interfaces/k8s';
 import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';

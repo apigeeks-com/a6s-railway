@@ -7,7 +7,9 @@ const tmp = require('tmp-promise');
 const fs = require('fs');
 
 export class K8sKubectlUtil {
-
+    /**
+     * @return {ChildProcessUtil}
+     */
     private get childProcessUtil(): ChildProcessUtil {
         return IOC.get(ChildProcessUtil);
     }

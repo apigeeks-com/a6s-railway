@@ -7,9 +7,14 @@ import {render} from 'ejs';
 import {BaseStationHandler, BaseResolver} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import {ProcessReporter} from './';
+import {IOC} from '../';
 
 export class A6sRailwayUtil {
     private sharedContext: any;
+
+    private get processReporter(): ProcessReporter {
+        return IOC.get(ProcessReporter);
+    }
 
     constructor() {
         this.purgeSharedContext();
@@ -65,7 +70,7 @@ export class A6sRailwayUtil {
             console.log(`-> Executing ${s.name}`);
             const result = await handler.run(options, handlers, resolvers);
 
-            ProcessReporter.setReport(s, result, options);
+            this.processReporter.setReport(s, result, options);
         } else {
             console.log(`-> Execution skipped for ${s.name}`);
         }
@@ -138,7 +143,7 @@ export class A6sRailwayUtil {
         return options;
     }
 
-    public async resolveTree(station: IRailWayStation, pwd: string, graphPath = '') {
+    async resolveTree(station: IRailWayStation, pwd: string, graphPath = '') {
         if (station.name !== 'a6s.external') {
             if (Array.isArray(station.options)) {
                 station.options = await Promise.all(
@@ -156,7 +161,7 @@ export class A6sRailwayUtil {
             };
         }
 
-        ProcessReporter.registerHandler(graphPath, station);
+        this.processReporter.registerHandler(graphPath, station);
 
         return station;
     }

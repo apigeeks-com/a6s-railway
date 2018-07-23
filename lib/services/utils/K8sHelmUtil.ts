@@ -6,6 +6,9 @@ import {IOC} from '../IOC';
 import {A6sRailwayUtil} from './A6sRailwayUtil';
 
 export class K8sHelmUtil {
+    /**
+     * @return {ChildProcessUtil}
+     */
     private get childProcessUtil(): ChildProcessUtil {
         return IOC.get(ChildProcessUtil);
     }
