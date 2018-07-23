@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import * as fs from 'fs';
-import {IK8sObject} from '../../interfaces';
+import {IK8sObject, IProcess} from '../../interfaces';
 import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import {IOC} from '../../services';
 import {A6sRailwayUtil} from '../../services/utils';
@@ -51,7 +51,7 @@ export class K8s_Secret_TLS_StationHandler extends K8s_Kubectl_ApplyObject_Stati
      * @param {A6sRailwayStationHandlersRegistry} plugins
      * @return {Promise<void>}
      */
-    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<void> {
+    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IProcess> {
         const object: IK8sObject = {
             apiVersion: 'v1',
             kind: 'Secret',
@@ -73,7 +73,7 @@ export class K8s_Secret_TLS_StationHandler extends K8s_Kubectl_ApplyObject_Stati
         object.data.tls.crt = await this.loadFile(options.cert);
         object.data.tls.key = await this.loadFile(options.key);
 
-        await super.run(object, plugins);
+        return await super.run(object, plugins);
     }
 
     /**

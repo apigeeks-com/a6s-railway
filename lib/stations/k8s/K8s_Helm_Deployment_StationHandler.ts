@@ -1,5 +1,5 @@
 import {BaseStationHandler} from '../../models';
-import {IHelmChartInstall} from '../../interfaces';
+import {IHelmChartInstall, IProcess} from '../../interfaces';
 import {K8sHelmUtil, IOC} from '../../services';
 import * as Joi from 'joi';
 import {IHelmChartInstall_JOI_SCHEMA} from '../../interfaces/k8s';
@@ -22,7 +22,7 @@ export class K8s_Helm_Deployment_StationHandler extends BaseStationHandler {
         return 'k8s.helm.install';
     }
 
-    async run(options: any, handlers: A6sRailwayStationHandlersRegistry): Promise<void> {
-        await this.k8sHelmUtil.updateOrInstall(options as IHelmChartInstall);
+    async run(options: any, handlers: A6sRailwayStationHandlersRegistry): Promise<IProcess> {
+        return await this.k8sHelmUtil.updateOrInstall(options as IHelmChartInstall);
     }
 }
