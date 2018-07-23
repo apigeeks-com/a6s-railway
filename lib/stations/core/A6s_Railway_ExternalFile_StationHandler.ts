@@ -29,6 +29,7 @@ export class A6s_Railway_ExternalFile_StationHandler extends BaseStationHandler 
 
         await new A6sRailway(resolve(file))
             .setHandlers(handlers)
+            .setResolvers(resolvers)
             .execute();
     }
 }

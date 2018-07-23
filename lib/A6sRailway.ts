@@ -42,6 +42,18 @@ export class A6sRailway {
         return this;
     }
 
+    /**
+     * Override resolvers
+     *
+     * @param {A6sRailwayResolverRegistry} resolvers
+     * @return {A6sRailway}
+     */
+    public setResolvers(resolvers: A6sRailwayResolverRegistry): A6sRailway {
+        this.resolvers = resolvers;
+
+        return this;
+    }
+
     private _register(entry: BaseStationHandler | BaseResolver) {
         if (entry instanceof BaseStationHandler) {
             this.handlers[entry.getName()] = entry;
