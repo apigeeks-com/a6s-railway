@@ -3,6 +3,7 @@
 import * as commander from 'commander';
 import * as plugins from './lib/stations';
 import {A6sRailway} from './lib/A6sRailway';
+import {ShellCmdStdOutResolver, ContextResolver} from './lib/resolvers/';
 
 // prepare commander
 commander
@@ -41,6 +42,9 @@ new A6sRailway(commander.map)
 
         new plugins.Write_File_StationHandler(),
 
+        // resolvers
+        new ContextResolver(),
+        new ShellCmdStdOutResolver()
     ])
     .execute()
     .catch(e => {

@@ -47,13 +47,13 @@ export class A6sRailwayUtil {
             for (const name in s.resolvers) {
                 const config: IRailWayResolver = s.resolvers[name];
 
-                const resolver = resolvers[name];
+                const resolver = resolvers[config.name];
                 if (!resolver) {
-                    throw new Error(`Unable to execute deployment. Resolver "${name}" is not registered`);
+                    throw new Error(`Unable to execute deployment. Resolver "${config.name}" is not registered`);
                 }
 
                 const _options = await this.resolveOptionsForResolver(config, resolver);
-                resolver.run(name, _options, this.getSharedContext(), resolvers);
+                await resolver.run(name, _options, this.getSharedContext(), resolvers);
             }
         }
 
