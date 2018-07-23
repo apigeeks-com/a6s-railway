@@ -1,11 +1,11 @@
 import {readFile} from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as deepmerge from 'deepmerge';
+import * as path from 'path';
 import {IRailWayResolver, IRailWayStation} from '../../interfaces/core';
 import {render} from 'ejs';
 import {BaseStationHandler, BaseResolver} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
-import {isAbsolute, resolve} from 'path';
 import {ProcessReporter} from './';
 
 export class A6sRailwayUtil {
@@ -25,16 +25,15 @@ export class A6sRailwayUtil {
 
     /**
      * Get absolute file path
-     * @param {string} path
+     * @param {string} filePath
      * @return {string}
      */
-    getAbsolutePath(path: string): string {
-        if (!isAbsolute(path)) {
-
-            return resolve(this.getSharedContext().pwd || '.',  path);
+    getAbsolutePath(filePath: string): string {
+        if (!path.isAbsolute(filePath)) {
+            return path.resolve(this.getSharedContext().pwd || '.',  filePath);
         }
 
-        return path;
+        return filePath;
     }
 
     async processStation(s: IRailWayStation, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<IRailWayStation> {
@@ -137,6 +136,29 @@ export class A6sRailwayUtil {
         }
 
         return options;
+    }
+
+    public async resolveTree(station: IRailWayStation, pwd: string, graphPath = '') {
+        if (station.name !== 'a6s.external') {
+            if (Array.isArray(station.options)) {
+                station.options = await Promise.all(
+                    station.options.map(async (option: any) => {
+                        return await this.resolveTree(option, pwd, `${graphPath}->${station.name}->${option.name}`);
+                    })
+                );
+            }
+        } else {
+            const file = path.join(pwd, station.options.file);
+            const fileContent = await this.readYamlFile(file);
+
+            station.options = {
+                station: await this.resolveTree(fileContent.station, pwd, `${graphPath}->${station.name}`)
+            };
+        }
+
+        ProcessReporter.registerHandler(graphPath, station);
+
+        return station;
     }
 
     async resolveOptionsForStationHandler(station: IRailWayStation, handler: BaseStationHandler): Promise<any> {

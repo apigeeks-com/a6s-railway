@@ -9,7 +9,6 @@ import * as fs from 'fs';
 import {A6sRailwayUtil} from './lib/services/utils';
 import {IOC} from './lib/services';
 import {ProcessReporter} from './lib/services/utils';
-import {IRailWayStation} from './lib/interfaces/core';
 
 // prepare commander
 commander
@@ -19,7 +18,7 @@ commander
     .action((configPath: string, options) => {
         options.map = configPath;
     })
-    .option('-o, --output <path>', 'set output path')
+    .option('-o, --output <path>', 'Store execution report in given location')
 ;
 // parse environment variables
 commander.parse(process.argv);
@@ -32,32 +31,10 @@ if (!commander.map) {
 
 const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
 
-async function normalizeConfig(station: IRailWayStation, pwd: string, graphPath = '') {
-    ProcessReporter.registerHandler(graphPath, station);
-
-    if (station.name !== 'a6s.external') {
-        if (Array.isArray(station.options)) {
-            station.options = await Promise.all(
-                station.options.map(async (option: any) => {
-                    return await normalizeConfig(option, pwd, `${graphPath}.${option.name}`);
-                })
-            );
-        }
-    } else {
-        const fileContent = await a6sRailwayUtil.readYamlFile(path.join(pwd, station.options.file));
-
-        station.options = {
-            station: await normalizeConfig(fileContent.station, pwd, `${graphPath}.${station.name}`)
-        };
-    }
-
-    return station;
-}
-
 const init = async () => {
     const map = await a6sRailwayUtil.readYamlFile(commander.map);
     const pwd = path.resolve(path.dirname(commander.map));
-    map.station = await normalizeConfig(map.station, pwd);
+    map.station = await a6sRailwayUtil.resolveTree(map.station, pwd);
 
     return map;
 };
