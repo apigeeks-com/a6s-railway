@@ -41,5 +41,5 @@ export abstract class BaseStationHandler {
      * @param resolvers
      * @returns {Promise<void>}
      */
-    async run(options: any, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<void> {} // tslint:disable-line
+    async run(options: any, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<any> {} // tslint:disable-line
 }
