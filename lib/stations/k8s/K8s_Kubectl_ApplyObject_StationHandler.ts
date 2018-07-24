@@ -1,5 +1,5 @@
 import {BaseStationHandler} from '../../models';
-import {IK8sObject, IReportRecord, TypeRecord} from '../../interfaces';
+import {IK8sObject, IReportRecord, IReportRecordType} from '../../interfaces';
 import {IOC, K8sKubectlUtil} from '../../services';
 import * as Joi from 'joi';
 import {IK8sObject_JOI_SCHEMA} from '../../interfaces/k8s';
@@ -51,7 +51,7 @@ export class K8s_Kubectl_ApplyObject_StationHandler extends BaseStationHandler {
     async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
         // create object
         return [<IReportRecord>{
-            type: TypeRecord.CMD,
+            type: IReportRecordType.CMD,
             payload: await this.k8sKubectlUtil.applyObject(<IK8sObject>options),
         }];
     }

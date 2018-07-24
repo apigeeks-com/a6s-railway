@@ -1,5 +1,5 @@
 import {BaseStationHandler} from '../../models';
-import {IHelmChartInstall, IReportRecord, TypeRecord} from '../../interfaces';
+import {IHelmChartInstall, IReportRecord, IReportRecordType} from '../../interfaces';
 import {K8sHelmUtil} from '../../services/utils';
 import {IOC} from '../../services';
 import * as Joi from 'joi';
@@ -40,7 +40,7 @@ export class K8s_Helm_Deployment_StationHandler extends BaseStationHandler {
      */
     async run(options: any, handlers: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
         return [<IReportRecord>{
-            type: TypeRecord.CMD,
+            type: IReportRecordType.CMD,
             payload: await this.k8sHelmUtil.updateOrInstall(options as IHelmChartInstall),
         }];
     }
