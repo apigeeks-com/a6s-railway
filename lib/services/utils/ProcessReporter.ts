@@ -9,8 +9,14 @@ export class ProcessReporter {
      * @param {IRailWayStation} station
      */
     public registerHandler(path: string[], station: IRailWayStation) {
+        const id = this.generateProcessId(station);
+
+        if (this.handlers.get(id)) {
+            return;
+        }
+
         this.handlers.set(
-            this.generateProcessId(station),
+            id,
             {
                 path,
                 station,
@@ -45,7 +51,6 @@ export class ProcessReporter {
         const handlers: any[] = [...this.handlers].sort(([, a]: any, [, b]: any) => {
             return a.path.length - b.path.length;
         });
-
 
         if (!handlers || !handlers.length) {
             return <IReport>{};

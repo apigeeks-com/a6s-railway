@@ -205,11 +205,19 @@ export class A6sRailwayUtil {
      * @return {Promise<IRailWayStation>}
      */
     async resolveTree(station: IRailWayStation, pwd: string, graphPath: string[] = []) {
+        const name = `${station.name}_${this.generateUniqueId()}`;
+
+        if (!graphPath.length) {
+            graphPath.push(name);
+        }
+
         if (station.name !== 'a6s.external') {
             if (Array.isArray(station.options)) {
                 station.options = await Promise.all(
                     station.options.map(async (option: any) => {
-                        return await this.resolveTree(option, pwd, [...graphPath, station.name, option.name]);
+                        const childName = `${option.name}_${this.generateUniqueId()}`;
+
+                        return await this.resolveTree(option, pwd, [...graphPath, childName]);
                     })
                 );
             }
@@ -218,7 +226,7 @@ export class A6sRailwayUtil {
             const fileContent = await this.readYamlFile(file);
 
             station.options = {
-                station: await this.resolveTree(fileContent.station, pwd, [...graphPath, station.name])
+                station: await this.resolveTree(fileContent.station, pwd, [...graphPath, name])
             };
         }
 
@@ -248,5 +256,14 @@ export class A6sRailwayUtil {
         }
 
         return options;
+    }
+
+    /**
+     * Generate unique id
+     *
+     * @return {string}
+     */
+    private generateUniqueId() {
+        return Math.random().toString(36).substr(2, 9);
     }
 }
