@@ -1,5 +1,5 @@
 import {IRailWayStation} from '../../interfaces/core';
-import {IReportRecord} from '../../interfaces';
+import {IReport, IReportRecord} from '../../interfaces';
 
 export class ProcessReporter {
     private handlers: Map<string, any> = new Map();
@@ -8,7 +8,7 @@ export class ProcessReporter {
      * @param {string} path
      * @param {IRailWayStation} station
      */
-    public registerHandler(path: string, station: IRailWayStation) {
+    public registerHandler(path: string[], station: IRailWayStation) {
         this.handlers.set(
             this.generateProcessId(station),
             {
@@ -37,27 +37,31 @@ export class ProcessReporter {
     }
 
     /**
-     * @return {any}
+     * Returned process report
+     *
+     * @return {IReport}
      */
-    public getReport() {
+    public getReport(): IReport {
         const handlers: any[] = [...this.handlers].sort(([, a]: any, [, b]: any) => {
-            return a.path.substr(2).split('->').length - b.path.substr(2).split('->').length;
+            return a.path.length - b.path.length;
         });
 
 
         if (!handlers || !handlers.length) {
-            return {};
+            return <IReport>{};
         }
 
         const [, firstHandler] = handlers[0];
-        const processPath = firstHandler.path.substr(2) || firstHandler.station.name;
-        const pathList = processPath.split('->');
+        const processPath = firstHandler.path.length
+            ? firstHandler.path
+            : [firstHandler.station.name]
+        ;
 
         return {
             name: firstHandler.station.name,
             options: firstHandler.options,
             report: firstHandler.report,
-            children: this.buildTreeReport(pathList, handlers)
+            children: this.buildTreeReport(processPath, handlers)
         };
     }
 
@@ -77,21 +81,21 @@ export class ProcessReporter {
     private buildTreeReport(parent: string[], handlers: any[]): any[] {
         return handlers
             .filter(([, h]) => {
-                const processPath = h.path.substr(2) || h.station.name;
+                const processPath = h.path.length ? h.path : [h.station.name];
 
-                return processPath.split('->').length - 1 === parent.length &&
-                    processPath.substr(0, parent.join('->').length)
-                    ;
+                return processPath.length - 1 === parent.length &&
+                    processPath.join().substr(0, parent.join().length) === parent.join()
+                ;
 
             })
             .map(([, h]) => {
-                const processPath = h.path.substr(2) || h.station.name;
+                const processPath = h.path.length ? h.path : [h.station.name];
 
                 return {
                     name: h.station.name,
                     options: h.options,
                     report: h.report,
-                    children: this.buildTreeReport(processPath.split('->'), handlers)
+                    children: this.buildTreeReport(processPath, handlers)
                 };
             })
         ;

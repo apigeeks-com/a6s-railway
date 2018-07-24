@@ -201,15 +201,15 @@ export class A6sRailwayUtil {
      *
      * @param {IRailWayStation} station
      * @param {string} pwd
-     * @param {string} graphPath
+     * @param {string[]} graphPath
      * @return {Promise<IRailWayStation>}
      */
-    async resolveTree(station: IRailWayStation, pwd: string, graphPath = '') {
+    async resolveTree(station: IRailWayStation, pwd: string, graphPath: string[] = []) {
         if (station.name !== 'a6s.external') {
             if (Array.isArray(station.options)) {
                 station.options = await Promise.all(
                     station.options.map(async (option: any) => {
-                        return await this.resolveTree(option, pwd, `${graphPath}->${station.name}->${option.name}`);
+                        return await this.resolveTree(option, pwd, [...graphPath, station.name, option.name]);
                     })
                 );
             }
@@ -218,7 +218,7 @@ export class A6sRailwayUtil {
             const fileContent = await this.readYamlFile(file);
 
             station.options = {
-                station: await this.resolveTree(fileContent.station, pwd, `${graphPath}->${station.name}`)
+                station: await this.resolveTree(fileContent.station, pwd, [...graphPath, station.name])
             };
         }
 
