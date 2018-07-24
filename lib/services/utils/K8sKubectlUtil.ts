@@ -1,4 +1,4 @@
-import {IK8sObject, IReportRecord} from '../../interfaces';
+import {IK8sObject, IProcess} from '../../interfaces';
 import * as jsyaml from 'js-yaml';
 import {ChildProcessUtil} from './ChildProcessUtil';
 import {IOC} from '../IOC';
@@ -38,7 +38,7 @@ export class K8sKubectlUtil {
      * @param {IK8sObject} k8sObject
      * @returns {Promise<void>}
      */
-    async createObject(k8sObject: IK8sObject): Promise<IReportRecord> {
+    async createObject(k8sObject: IK8sObject): Promise<IProcess> {
         const tmpFile = await tmp.file();
         fs.writeFileSync(tmpFile.path, jsyaml.dump(k8sObject), 'utf8');
 
@@ -62,7 +62,7 @@ export class K8sKubectlUtil {
      * @param {IK8sObject} k8sObject
      * @return {Promise<void>}
      */
-    async applyObject(k8sObject: IK8sObject): Promise<IReportRecord> {
+    async applyObject(k8sObject: IK8sObject): Promise<IProcess> {
         const tmpFile = await tmp.file();
         fs.writeFileSync(tmpFile.path, jsyaml.dump(k8sObject), 'utf8');
 

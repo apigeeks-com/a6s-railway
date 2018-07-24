@@ -1,5 +1,8 @@
+export enum TypeRecord {
+    CMD = 'cmd',
+}
+
 export interface IReportRecord {
-    stdout: string;
-    stderr: string;
-    cmd: string;
+    type: string;
+    payload?: any;
 }

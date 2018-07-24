@@ -57,7 +57,7 @@ export class K8s_ConfigMap_StationHandler extends K8s_Kubectl_ApplyObject_Statio
     /**
      * @param options
      * @param {A6sRailwayStationHandlersRegistry} plugins
-     * @return {Promise<void>}
+     * @return {Promise<IReportRecord[]>}
      */
     async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
         const object: IK8sObject = {
