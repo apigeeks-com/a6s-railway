@@ -41,6 +41,18 @@ const init = async () => {
     return map;
 };
 
+const saveReport = (reportPath: string) => {
+    if (reportPath) {
+        const baseDir = path.dirname(reportPath);
+
+        if (!fs.existsSync(baseDir)) {
+            mkdirp.sync(baseDir);
+        }
+
+        fs.writeFileSync(reportPath, JSON.stringify(processReporter.getReport(), null, '   '));
+    }
+};
+
 init().then((configMap) => {
     const a6sRailway = new A6sRailway(configMap);
 
@@ -71,19 +83,12 @@ init().then((configMap) => {
         ])
         .execute()
         .then(() => {
-
-            if (commander.output) {
-                const baseDir = path.dirname(commander.output);
-
-                if (!fs.existsSync(baseDir)) {
-                    mkdirp.sync(baseDir);
-                }
-
-                fs.writeFileSync(commander.output, JSON.stringify(processReporter.getReport(), null, '   '));
-            }
+            saveReport(commander.output);
         })
         .catch(e => {
+            saveReport(commander.output);
             console.error(e);
             process.exit(1);
-        });
+        })
+    ;
 });
