@@ -1,7 +1,8 @@
 import {IK8sObject, IProcess} from '../../interfaces';
 import * as jsyaml from 'js-yaml';
-import {ChildProcessUtil} from './ChildProcessUtil';
+import {ChildProcessUtil, A6sRailwayUtil} from './';
 import {IOC} from '../IOC';
+import {createHash} from 'crypto';
 
 const tmp = require('tmp-promise');
 const fs = require('fs');
@@ -12,6 +13,10 @@ export class K8sKubectlUtil {
      */
     private get childProcessUtil(): ChildProcessUtil {
         return IOC.get(ChildProcessUtil);
+    }
+
+    private get a6sRailwayUtil(): A6sRailwayUtil {
+        return IOC.get(A6sRailwayUtil)
     }
 
     /**
@@ -50,6 +55,8 @@ export class K8sKubectlUtil {
             throw new Error(`Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
         }
 
+        this.registerHash(k8sObject);
+
         return {
             stdout: result.stdout,
             stderr: result.stderr,
@@ -73,11 +80,40 @@ export class K8sKubectlUtil {
             throw new Error(`Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
         }
 
+        this.registerHash(k8sObject);
+
         return {
             stdout: result.stdout,
             stderr: result.stderr,
             cmd,
         };
+    }
+
+    /**
+     * For every created or update K8s object we need to register its hashed value in a shared context
+     * Path: context.k8s.hash.<kind>.<name>
+     * @param {IK8sObject} k8sObject
+     */
+    private registerHash(k8sObject: IK8sObject): void {
+        const sharedContext = this.a6sRailwayUtil.getSharedContext();
+
+        if (!sharedContext.k8s) {
+            sharedContext.k8s = {}
+        }
+
+        if (!sharedContext.k8s.hash) {
+            sharedContext.k8s.hash = {}
+        }
+
+        if (!sharedContext.k8s.hash[k8sObject.kind]) {
+            sharedContext.k8s.hash[k8sObject.kind] = {}
+        }
+
+        const content = jsyaml.dump(k8sObject);
+
+        // populate hash
+        sharedContext.k8s.hash[k8sObject.kind][k8sObject.metadata.name] = createHash('sha256').update(content).digest('base64');
+
     }
 
     /**
