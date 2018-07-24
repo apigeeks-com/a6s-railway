@@ -1,8 +1,8 @@
-export enum TypeRecord {
+export enum IReportRecordType {
     CMD = 'cmd',
 }
 
 export interface IReportRecord {
-    type: string;
+    type: IReportRecordType | string;
     payload?: any;
 }
