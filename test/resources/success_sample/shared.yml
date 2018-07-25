@@ -1,0 +1,29 @@
+version: 1.0.0
+cleanupStrategy: none
+station:
+  name: a6s.sequence
+  options:
+    - name: k8s.docker.secret.create
+      options:
+        name: docker-credentials
+        server: docker.server.com
+        username: foo
+        password: boo
+        email: foo@boo.com
+
+    - name: k8s.configMap.create
+      options:
+        name: shared-config
+        inline:
+          default.json: |-
+            {
+              "tree": {
+                  "key1": {
+                      "enabled": true
+                  },
+
+                  "key2": {
+                      "enabled": truea
+                  }
+              },
+            }

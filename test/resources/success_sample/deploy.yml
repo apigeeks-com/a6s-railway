@@ -1,0 +1,16 @@
+version: 1.0.0
+cleanupStrategy: none
+station:
+  name: a6s.sequence
+  options:
+    - name: a6s.external
+      options:
+        file: ./shared.yml
+    - name: a6s.parallel
+      options:
+        - name: a6s.external
+          options:
+            file: ./service1.yml
+        - name: a6s.external
+          options:
+            file: ./service2.yml
