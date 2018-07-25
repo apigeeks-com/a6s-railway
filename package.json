@@ -4,7 +4,6 @@
   "description": "K8s deployment orchestration tool.",
   "main": "index.js",
   "scripts": {
-    "tsoa": "tsoa",
     "tsc": "tsc",
     "rimraf": "rimraf",
     "start": "node dist/cli.js",

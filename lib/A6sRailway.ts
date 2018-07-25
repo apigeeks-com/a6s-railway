@@ -1,8 +1,7 @@
-import {IRailwayMap, IRailWayStation} from './interfaces';
+import {IRailwayMap} from './interfaces';
 import {BaseResolver, BaseStationHandler} from './models';
-import {A6sRailwayUtil, ProcessReporter} from './services/utils';
+import {A6sRailwayUtil} from './services/utils';
 import {IOC} from './services';
-import * as path from "path";
 
 export type A6sRailwayStationHandlersRegistry = {[name: string]: BaseStationHandler};
 export type A6sRailwayResolverRegistry = {[name: string]: BaseResolver};

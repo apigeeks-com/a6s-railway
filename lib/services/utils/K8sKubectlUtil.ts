@@ -16,7 +16,7 @@ export class K8sKubectlUtil {
     }
 
     private get a6sRailwayUtil(): A6sRailwayUtil {
-        return IOC.get(A6sRailwayUtil)
+        return IOC.get(A6sRailwayUtil);
     }
 
     /**
@@ -98,15 +98,15 @@ export class K8sKubectlUtil {
         const sharedContext = this.a6sRailwayUtil.getSharedContext();
 
         if (!sharedContext.k8s) {
-            sharedContext.k8s = {}
+            sharedContext.k8s = {};
         }
 
         if (!sharedContext.k8s.hash) {
-            sharedContext.k8s.hash = {}
+            sharedContext.k8s.hash = {};
         }
 
         if (!sharedContext.k8s.hash[k8sObject.kind]) {
-            sharedContext.k8s.hash[k8sObject.kind] = {}
+            sharedContext.k8s.hash[k8sObject.kind] = {};
         }
 
         const content = jsyaml.dump(k8sObject);

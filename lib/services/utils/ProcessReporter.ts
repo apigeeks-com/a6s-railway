@@ -1,5 +1,5 @@
 import {IRailWayStation} from '../../interfaces/core';
-import {IReport, IReportRecord, IHandlerReportRecord} from '../../interfaces';
+import {IReport, IHandlerReportRecord} from '../../interfaces';
 
 export class ProcessReporter {
     private handlers: Map<string, any> = new Map();
@@ -26,7 +26,7 @@ export class ProcessReporter {
 
     /**
      * @param {IRailWayStation} station
-     * @param {IReportRecord | undefined} report
+     * @param {IHandlerReportRecord} report
      * @param options
      */
     public setReport(
