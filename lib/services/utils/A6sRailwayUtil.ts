@@ -1,23 +1,43 @@
 import {readFile} from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as deepmerge from 'deepmerge';
+import {resolve, join, isAbsolute} from 'path';
 import {IRailWayResolver, IRailWayStation} from '../../interfaces/core';
 import {render} from 'ejs';
 import {BaseStationHandler, BaseResolver} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
-import {isAbsolute, resolve} from 'path';
+import {ProcessReporter} from './';
+import {IOC} from '../';
+import {IHandlerReportRecord} from '../../interfaces/IHandlerReportRecord';
 
 export class A6sRailwayUtil {
     private sharedContext: any;
+    private handlerIndex = 0;
 
     constructor() {
         this.purgeSharedContext();
     }
 
+    /**
+     * Get ProcessReporter service
+     *
+     * @return {ProcessReporter}
+     */
+    private get processReporter(): ProcessReporter {
+        return IOC.get(ProcessReporter);
+    }
+
+    /**
+     * Clearing shared context
+     */
     public purgeSharedContext() {
         this.sharedContext = {};
     }
 
+    /**
+     * Get shared context
+     * @return {any}
+     */
     public getSharedContext() {
         return this.sharedContext;
     }
@@ -29,15 +49,27 @@ export class A6sRailwayUtil {
      */
     getAbsolutePath(path: string): string {
         if (!isAbsolute(path)) {
-
             return resolve(this.getSharedContext().pwd || '.',  path);
         }
 
         return path;
     }
 
-    async processStation(s: IRailWayStation, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<void> {
+    /**
+     * Processed Station
+     *
+     * @param {IRailWayStation} s
+     * @param {A6sRailwayStationHandlersRegistry} handlers
+     * @param {A6sRailwayResolverRegistry} resolvers
+     * @return {Promise<IRailWayStation>}
+     */
+    async processStation(s: IRailWayStation, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<IRailWayStation> {
         const handler = handlers[s.name];
+
+        const result = <IHandlerReportRecord>{
+            resolvers: [],
+            handler: null,
+        };
 
         if (!handler) {
             throw new Error(`Unable to execute deployment. Plugin "${s.name}" is not registered`);
@@ -46,14 +78,18 @@ export class A6sRailwayUtil {
         if (s.resolvers) {
             for (const name in s.resolvers) {
                 const config: IRailWayResolver = s.resolvers[name];
-
                 const resolver = resolvers[config.name];
+
                 if (!resolver) {
                     throw new Error(`Unable to execute deployment. Resolver "${config.name}" is not registered`);
                 }
 
                 const _options = await this.resolveOptionsForResolver(config, resolver);
-                await resolver.run(name, _options, this.getSharedContext(), resolvers);
+                const resolverResult = await resolver.run(name, _options, this.getSharedContext(), resolvers);
+
+                if (resolverResult) {
+                    result.resolvers.push(resolverResult);
+                }
             }
         }
 
@@ -63,12 +99,26 @@ export class A6sRailwayUtil {
 
         if (shouldRun) {
             console.log(`-> Executing ${s.name}`);
-            await handler.run(options, handlers, resolvers);
+            const handlerResult = await handler.run(options, handlers, resolvers);
+
+            if (handlerResult) {
+                result.handler = handlerResult;
+            }
         } else {
             console.log(`-> Execution skipped for ${s.name}`);
         }
+
+        this.processReporter.setReport(s, result, options);
+
+        return s;
     }
 
+    /**
+     * Read File
+     *
+     * @param {string} file
+     * @return {Promise<string>}
+     */
     readStringFile(file: string): Promise<string> {
         return new Promise<any>((res, rej) => {
             readFile(file, 'utf8', (err, str) => {
@@ -81,12 +131,25 @@ export class A6sRailwayUtil {
         });
     }
 
+    /**
+     * Read Yaml file
+     *
+     * @param {string} file
+     * @return {Promise<any>}
+     */
     async readYamlFile(file: string): Promise<any> {
         const yaml = await this.readStringFile(this.getAbsolutePath(file));
 
         return jsyaml.safeLoad(yaml);
     }
 
+    /**
+     * Resolving options
+     *
+     * @param {IRailWayResolver} station
+     * @return {Promise<any>}
+     * @private
+     */
     async _resolveOptions(station: IRailWayResolver): Promise<any> {
         if (!station.options_file && !station.options) {
             return null;
@@ -105,6 +168,13 @@ export class A6sRailwayUtil {
         return deepmerge(fileOptions, station.options);
     }
 
+    /**
+     * Build template in options
+     *
+     * @param options
+     * @return {any}
+     * @private
+     */
     _processOptionsTemplate(options: any): any {
         if (options) {
             let yaml = jsyaml.dump(options);
@@ -120,6 +190,13 @@ export class A6sRailwayUtil {
         return options;
     }
 
+    /**
+     * Resolve options for resolver
+     *
+     * @param {IRailWayResolver} config
+     * @param {BaseResolver} resolver
+     * @return {Promise<any>}
+     */
     async resolveOptionsForResolver(config: IRailWayResolver, resolver: BaseResolver): Promise<any> {
         let options = await this._resolveOptions(config);
         options = this._processOptionsTemplate(options);
@@ -134,6 +211,52 @@ export class A6sRailwayUtil {
         return options;
     }
 
+    /**
+     * Resolving file dependencies
+     *
+     * @param {IRailWayStation} station
+     * @param {string} pwd
+     * @param {string[]} graphPath
+     * @return {Promise<IRailWayStation>}
+     */
+    async resolveTree(station: IRailWayStation, pwd: string, graphPath: string[] = []) {
+        const name = `${station.name}_${this.generateUniqueId()}`;
+
+        if (!graphPath.length) {
+            graphPath.push(name);
+        }
+
+        if (station.name !== 'a6s.external') {
+            if (Array.isArray(station.options)) {
+                station.options = await Promise.all(
+                    station.options.map(async (option: any) => {
+                        const childName = `${option.name}_${this.generateUniqueId()}`;
+
+                        return await this.resolveTree(option, pwd, [...graphPath, childName]);
+                    })
+                );
+            }
+        } else {
+            const file = join(pwd, station.options.file);
+            const fileContent = await this.readYamlFile(file);
+
+            station.options = {
+                station: await this.resolveTree(fileContent.station, pwd, [...graphPath, name])
+            };
+        }
+
+        this.processReporter.registerHandler(graphPath, station);
+
+        return station;
+    }
+
+    /**
+     * Resolve options for station handler
+     *
+     * @param {IRailWayStation} station
+     * @param {BaseStationHandler} handler
+     * @return {Promise<any>}
+     */
     async resolveOptionsForStationHandler(station: IRailWayStation, handler: BaseStationHandler): Promise<any> {
         let options = await this._resolveOptions(station);
 
@@ -148,5 +271,14 @@ export class A6sRailwayUtil {
         }
 
         return options;
+    }
+
+    /**
+     * Generate unique id
+     *
+     * @return {string}
+     */
+    private generateUniqueId() {
+        return this.handlerIndex++;
     }
 }

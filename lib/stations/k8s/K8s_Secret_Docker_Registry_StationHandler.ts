@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import {IK8sObject} from '../../interfaces';
+import {IK8sObject, IReportRecord} from '../../interfaces';
 import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import {K8s_Kubectl_ApplyObject_StationHandler} from './K8s_Kubectl_ApplyObject_StationHandler';
 
@@ -48,9 +48,9 @@ export class K8s_Secret_Docker_Registry_StationHandler extends K8s_Kubectl_Apply
     /**
      * @param options
      * @param {A6sRailwayStationHandlersRegistry} plugins
-     * @return {Promise<void>}
+     * @return {Promise<IReportRecord[]>}
      */
-    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<void> {
+    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
         const object: IK8sObject = {
             apiVersion: 'v1',
             kind: 'Secret',
@@ -76,6 +76,6 @@ export class K8s_Secret_Docker_Registry_StationHandler extends K8s_Kubectl_Apply
             object.metadata.namespace = options.namespace;
         }
 
-        await super.run(object, plugins);
+        return await super.run(object, plugins);
     }
 }

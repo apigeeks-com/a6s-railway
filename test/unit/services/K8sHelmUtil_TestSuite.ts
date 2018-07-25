@@ -1,5 +1,6 @@
 import { suite, test } from 'mocha-typescript';
-import {IOC, ChildProcessUtil, K8sHelmUtil} from '../../../lib/services';
+import {IOC, ChildProcessUtil} from '../../../lib/services';
+import {K8sHelmUtil} from '../../../lib/services/utils';
 
 const assert = require('assert');
 
@@ -27,7 +28,6 @@ let output = {
 
     async after() {
         IOC.unregister(ChildProcessUtil);
-        IOC.unregister(K8sHelmUtil);
     }
 
     @test()

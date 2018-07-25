@@ -1,4 +1,4 @@
-import {IHelmDeploymentInfo, IHelmChartInstall} from '../../interfaces';
+import {IHelmDeploymentInfo, IHelmChartInstall, IProcess} from '../../interfaces';
 import * as yaml from 'js-yaml';
 import {flatten} from 'flat';
 import {ChildProcessUtil} from './ChildProcessUtil';
@@ -6,6 +6,9 @@ import {IOC} from '../IOC';
 import {A6sRailwayUtil} from './A6sRailwayUtil';
 
 export class K8sHelmUtil {
+    /**
+     * @return {ChildProcessUtil}
+     */
     private get childProcessUtil(): ChildProcessUtil {
         return IOC.get(ChildProcessUtil);
     }
@@ -16,12 +19,19 @@ export class K8sHelmUtil {
      * @param {string} namespace
      * @return {Promise<void>}
      */
-    async remove(name: string, namespace: string): Promise<void> {
-        const result = await this.childProcessUtil.exec(`helm del --namespace ${namespace} --purge ${name}`);
+    async remove(name: string, namespace: string): Promise<IProcess> {
+        const cmd = `helm del --namespace ${namespace} --purge ${name}`;
+        const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
             throw new Error(result.stderr);
         }
+
+        return {
+            stdout: result.stdout,
+            stderr: result.stderr,
+            cmd,
+        };
     }
 
     /**
@@ -29,7 +39,7 @@ export class K8sHelmUtil {
      * @param {IHelmChartInstall} config
      * @return {Promise<void>}
      */
-    async updateOrInstall(config: IHelmChartInstall): Promise<void> {
+    async updateOrInstall(config: IHelmChartInstall): Promise<IProcess> {
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
 
         const cmd = [
@@ -75,6 +85,12 @@ export class K8sHelmUtil {
         if (result.code !== 0) {
             throw new Error(result.stderr);
         }
+
+        return {
+            stdout: result.stdout,
+            stderr: result.stderr,
+            cmd: cmd.join(' '),
+        };
     }
 
     /**
