@@ -2,7 +2,7 @@ import {IRailWayStation} from '../../interfaces/core';
 import {IReport, IHandlerReportRecord} from '../../interfaces';
 
 export class ProcessReporter {
-    private handlers: Map<string, any> = new Map();
+    protected handlers: Map<string, any> = new Map();
 
     /**
      * @param {string} path
@@ -74,7 +74,7 @@ export class ProcessReporter {
      * @param {IRailWayStation} station
      * @return {string}
      */
-    private generateProcessId(station: IRailWayStation) {
+    protected generateProcessId(station: IRailWayStation) {
         return Buffer.from(JSON.stringify(station)).toString('base64');
     }
 
@@ -83,7 +83,7 @@ export class ProcessReporter {
      * @param {any[]} handlers
      * @return {any[]}
      */
-    private buildTreeReport(parent: string[], handlers: any[]): any[] {
+    protected buildTreeReport(parent: string[], handlers: any[]): any[] {
         return handlers
             .filter(([, h]) => {
                 const processPath = h.path.length ? h.path : [h.station.name];
