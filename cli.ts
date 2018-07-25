@@ -32,10 +32,12 @@ if (!commander.map) {
 
 const processReporter = IOC.get(ProcessReporter);
 const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
+const ctx = a6sRailwayUtil.getSharedContext();
 
 const init = async () => {
     const map = await a6sRailwayUtil.readYamlFile(commander.map);
     const pwd = path.resolve(path.dirname(commander.map));
+    ctx.pwd = path.dirname(commander.map);
     map.station = await a6sRailwayUtil.resolveTree(map.station, pwd);
 
     return map;
