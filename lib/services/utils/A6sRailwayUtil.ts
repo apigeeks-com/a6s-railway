@@ -8,9 +8,11 @@ import {BaseStationHandler, BaseResolver} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import {ProcessReporter} from './';
 import {IOC} from '../';
+import {IHandlerReportRecord} from '../../interfaces/IHandlerReportRecord';
 
 export class A6sRailwayUtil {
     private sharedContext: any;
+    private handlerIndex = 0;
 
     constructor() {
         this.purgeSharedContext();
@@ -64,6 +66,11 @@ export class A6sRailwayUtil {
     async processStation(s: IRailWayStation, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<IRailWayStation> {
         const handler = handlers[s.name];
 
+        const result = <IHandlerReportRecord>{
+            resolvers: [],
+            handler: null,
+        };
+
         if (!handler) {
             throw new Error(`Unable to execute deployment. Plugin "${s.name}" is not registered`);
         }
@@ -71,14 +78,18 @@ export class A6sRailwayUtil {
         if (s.resolvers) {
             for (const name in s.resolvers) {
                 const config: IRailWayResolver = s.resolvers[name];
-
                 const resolver = resolvers[config.name];
+
                 if (!resolver) {
                     throw new Error(`Unable to execute deployment. Resolver "${config.name}" is not registered`);
                 }
 
                 const _options = await this.resolveOptionsForResolver(config, resolver);
-                await resolver.run(name, _options, this.getSharedContext(), resolvers);
+                const resolverResult = await resolver.run(name, _options, this.getSharedContext(), resolvers);
+
+                if (resolverResult) {
+                    result.resolvers.push(resolverResult);
+                }
             }
         }
 
@@ -88,12 +99,16 @@ export class A6sRailwayUtil {
 
         if (shouldRun) {
             console.log(`-> Executing ${s.name}`);
-            const result = await handler.run(options, handlers, resolvers);
+            const handlerResult = await handler.run(options, handlers, resolvers);
 
-            this.processReporter.setReport(s, result, options);
+            if (handlerResult) {
+                result.handler = handlerResult;
+            }
         } else {
             console.log(`-> Execution skipped for ${s.name}`);
         }
+
+        this.processReporter.setReport(s, result, options);
 
         return s;
     }
@@ -264,6 +279,6 @@ export class A6sRailwayUtil {
      * @return {string}
      */
     private generateUniqueId() {
-        return Math.random().toString(36).substr(2, 9);
+        return this.handlerIndex++;
     }
 }

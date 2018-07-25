@@ -1,5 +1,5 @@
 import {IRailWayStation} from '../../interfaces/core';
-import {IReport, IReportRecord} from '../../interfaces';
+import {IReport, IReportRecord, IHandlerReportRecord} from '../../interfaces';
 
 export class ProcessReporter {
     private handlers: Map<string, any> = new Map();
@@ -31,7 +31,7 @@ export class ProcessReporter {
      */
     public setReport(
         station: IRailWayStation,
-        report: IReportRecord[] | void,
+        report: IHandlerReportRecord,
         options: any,
     ) {
         const handler = this.handlers.get(this.generateProcessId(station));
@@ -88,6 +88,7 @@ export class ProcessReporter {
             .filter(([, h]) => {
                 const processPath = h.path.length ? h.path : [h.station.name];
 
+                // Checking the equivalence of arrays
                 return processPath.length - 1 === parent.length &&
                     processPath.join().substr(0, parent.join().length) === parent.join()
                 ;
