@@ -1,0 +1,17 @@
+version: 1.0.0
+cleanupStrategy: none
+station:
+  name: a6s.sequence
+  options:
+    - name: k8s.helm.install
+      options:
+        foo: path_to_mongodb_chart
+        name: mongodb
+        variables:
+          service:
+            type: NodePort
+          image:
+            repository: mongodb_image
+            tag: 0.0.1
+            pullSecrets:
+              - docker-credentials

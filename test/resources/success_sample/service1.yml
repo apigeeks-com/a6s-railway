@@ -1,0 +1,49 @@
+version: 1.0.0
+cleanupStrategy: none
+station:
+  name: a6s.sequence
+  options:
+    - name: k8s.configMap.create
+      options:
+        name: config
+        inline:
+          default.js: |-
+            module.exports ={
+                port: 8080
+            };
+
+    - name: k8s.generic.secret.create
+      options:
+        name: credentials
+        inline:
+          credentials.json: |-
+            {
+              "apiKey": "foo",
+              "endpoint": "http://boo.com"
+            }
+
+    - name: k8s.helm.install
+      options:
+        chart: path_to_your_service_chart
+        name: service_name
+        variables:
+          service:
+            type: NodePort
+
+          image:
+            repository: service_image
+            tag: 0.0.1
+            pullPolicy: Always
+            pullSecrets:
+              - docker-credentials
+
+          volumes:
+            configMap:
+              - name: shared-config
+                mountPath: /usr/app/shared-config
+
+              - name: config
+                mountPath: /usr/app/config
+            secret:
+              - name: credentials
+                mountPath: /usr/app/config-secret

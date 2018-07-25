@@ -1,0 +1,693 @@
+{
+   "name": "a6s.sequence",
+   "options": [
+      {
+         "name": "a6s.external",
+         "options": {
+            "station": {
+               "name": "a6s.sequence",
+               "options": [
+                  {
+                     "name": "k8s.docker.secret.create",
+                     "options": {
+                        "name": "docker-credentials",
+                        "server": "docker.server.com",
+                        "username": "foo",
+                        "password": "boo",
+                        "email": "foo@boo.com"
+                     }
+                  },
+                  {
+                     "name": "k8s.configMap.create",
+                     "options": {
+                        "name": "shared-config",
+                        "inline": {
+                           "default.json": "{\n  \"tree\": {\n      \"key1\": {\n          \"enabled\": true\n      },\n\n      \"key2\": {\n          \"enabled\": truea\n      }\n  },\n}"
+                        }
+                     }
+                  }
+               ]
+            }
+         }
+      },
+      {
+         "name": "a6s.parallel",
+         "options": [
+            {
+               "name": "a6s.external",
+               "options": {
+                  "station": {
+                     "name": "a6s.sequence",
+                     "options": [
+                        {
+                           "name": "k8s.configMap.create",
+                           "options": {
+                              "name": "config",
+                              "inline": {
+                                 "default.js": "module.exports ={\n    port: 8080\n};"
+                              }
+                           }
+                        },
+                        {
+                           "name": "k8s.generic.secret.create",
+                           "options": {
+                              "name": "credentials",
+                              "inline": {
+                                 "credentials.json": "{\n  \"apiKey\": \"foo\",\n  \"endpoint\": \"http://boo.com\"\n}"
+                              }
+                           }
+                        },
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_your_service_chart",
+                              "name": "service_name",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "service_image",
+                                    "tag": "0.0.1",
+                                    "pullPolicy": "Always",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 },
+                                 "volumes": {
+                                    "configMap": [
+                                       {
+                                          "name": "shared-config",
+                                          "mountPath": "/usr/app/shared-config"
+                                       },
+                                       {
+                                          "name": "config",
+                                          "mountPath": "/usr/app/config"
+                                       }
+                                    ],
+                                    "secret": [
+                                       {
+                                          "name": "credentials",
+                                          "mountPath": "/usr/app/config-secret"
+                                       }
+                                    ]
+                                 }
+                              }
+                           }
+                        }
+                     ]
+                  }
+               }
+            },
+            {
+               "name": "a6s.external",
+               "options": {
+                  "station": {
+                     "name": "a6s.sequence",
+                     "options": [
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_mongodb_chart",
+                              "name": "mongodb",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "mongodb_image",
+                                    "tag": "0.0.1",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 }
+                              }
+                           }
+                        }
+                     ]
+                  }
+               }
+            }
+         ]
+      }
+   ],
+   "report": {
+      "resolvers": [],
+      "handler": null
+   },
+   "children": [
+      {
+         "name": "a6s.external",
+         "options": {
+            "station": {
+               "name": "a6s.sequence",
+               "options": [
+                  {
+                     "name": "k8s.docker.secret.create",
+                     "options": {
+                        "name": "docker-credentials",
+                        "server": "docker.server.com",
+                        "username": "foo",
+                        "password": "boo",
+                        "email": "foo@boo.com"
+                     }
+                  },
+                  {
+                     "name": "k8s.configMap.create",
+                     "options": {
+                        "name": "shared-config",
+                        "inline": {
+                           "default.json": "{\n  \"tree\": {\n      \"key1\": {\n          \"enabled\": true\n      },\n\n      \"key2\": {\n          \"enabled\": truea\n      }\n  },\n}"
+                        }
+                     }
+                  }
+               ]
+            }
+         },
+         "report": {
+            "resolvers": [],
+            "handler": null
+         },
+         "children": [
+            {
+               "name": "a6s.sequence",
+               "options": [
+                  {
+                     "name": "k8s.docker.secret.create",
+                     "options": {
+                        "name": "docker-credentials",
+                        "server": "docker.server.com",
+                        "username": "foo",
+                        "password": "boo",
+                        "email": "foo@boo.com"
+                     }
+                  },
+                  {
+                     "name": "k8s.configMap.create",
+                     "options": {
+                        "name": "shared-config",
+                        "inline": {
+                           "default.json": "{\n  \"tree\": {\n      \"key1\": {\n          \"enabled\": true\n      },\n\n      \"key2\": {\n          \"enabled\": truea\n      }\n  },\n}"
+                        }
+                     }
+                  }
+               ],
+               "report": {
+                  "resolvers": [],
+                  "handler": null
+               },
+               "children": [
+                  {
+                     "name": "k8s.configMap.create",
+                     "options": {
+                        "name": "shared-config",
+                        "inline": {
+                           "default.json": "{\n  \"tree\": {\n      \"key1\": {\n          \"enabled\": true\n      },\n\n      \"key2\": {\n          \"enabled\": truea\n      }\n  },\n}"
+                        }
+                     },
+                     "report": {
+                        "resolvers": [],
+                        "handler": [
+                           {
+                              "type": "cmd",
+                              "payload": {
+                                 "stdout": "",
+                                 "stderr": "",
+                                 "cmd": ""
+                              }
+                           }
+                        ]
+                     },
+                     "children": []
+                  },
+                  {
+                     "name": "k8s.docker.secret.create",
+                     "options": {
+                        "name": "docker-credentials",
+                        "server": "docker.server.com",
+                        "username": "foo",
+                        "password": "boo",
+                        "email": "foo@boo.com"
+                     },
+                     "report": {
+                        "resolvers": [],
+                        "handler": [
+                           {
+                              "type": "cmd",
+                              "payload": {
+                                 "stdout": "",
+                                 "stderr": "",
+                                 "cmd": ""
+                              }
+                           }
+                        ]
+                     },
+                     "children": []
+                  }
+               ]
+            }
+         ]
+      },
+      {
+         "name": "a6s.parallel",
+         "options": [
+            {
+               "name": "a6s.external",
+               "options": {
+                  "station": {
+                     "name": "a6s.sequence",
+                     "options": [
+                        {
+                           "name": "k8s.configMap.create",
+                           "options": {
+                              "name": "config",
+                              "inline": {
+                                 "default.js": "module.exports ={\n    port: 8080\n};"
+                              }
+                           }
+                        },
+                        {
+                           "name": "k8s.generic.secret.create",
+                           "options": {
+                              "name": "credentials",
+                              "inline": {
+                                 "credentials.json": "{\n  \"apiKey\": \"foo\",\n  \"endpoint\": \"http://boo.com\"\n}"
+                              }
+                           }
+                        },
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_your_service_chart",
+                              "name": "service_name",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "service_image",
+                                    "tag": "0.0.1",
+                                    "pullPolicy": "Always",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 },
+                                 "volumes": {
+                                    "configMap": [
+                                       {
+                                          "name": "shared-config",
+                                          "mountPath": "/usr/app/shared-config"
+                                       },
+                                       {
+                                          "name": "config",
+                                          "mountPath": "/usr/app/config"
+                                       }
+                                    ],
+                                    "secret": [
+                                       {
+                                          "name": "credentials",
+                                          "mountPath": "/usr/app/config-secret"
+                                       }
+                                    ]
+                                 }
+                              }
+                           }
+                        }
+                     ]
+                  }
+               }
+            },
+            {
+               "name": "a6s.external",
+               "options": {
+                  "station": {
+                     "name": "a6s.sequence",
+                     "options": [
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_mongodb_chart",
+                              "name": "mongodb",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "mongodb_image",
+                                    "tag": "0.0.1",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 }
+                              }
+                           }
+                        }
+                     ]
+                  }
+               }
+            }
+         ],
+         "report": {
+            "resolvers": [],
+            "handler": null
+         },
+         "children": [
+            {
+               "name": "a6s.external",
+               "options": {
+                  "station": {
+                     "name": "a6s.sequence",
+                     "options": [
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_mongodb_chart",
+                              "name": "mongodb",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "mongodb_image",
+                                    "tag": "0.0.1",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 }
+                              }
+                           }
+                        }
+                     ]
+                  }
+               },
+               "report": {
+                  "resolvers": [],
+                  "handler": null
+               },
+               "children": [
+                  {
+                     "name": "a6s.sequence",
+                     "options": [
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_mongodb_chart",
+                              "name": "mongodb",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "mongodb_image",
+                                    "tag": "0.0.1",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 }
+                              }
+                           }
+                        }
+                     ],
+                     "report": {
+                        "resolvers": [],
+                        "handler": null
+                     },
+                     "children": [
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_mongodb_chart",
+                              "name": "mongodb",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "mongodb_image",
+                                    "tag": "0.0.1",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 }
+                              }
+                           },
+                           "report": {
+                              "resolvers": [],
+                              "handler": [
+                                 {
+                                    "type": "cmd",
+                                    "payload": {
+                                       "stdout": "",
+                                       "stderr": "",
+                                       "cmd": ""
+                                    }
+                                 }
+                              ]
+                           },
+                           "children": []
+                        }
+                     ]
+                  }
+               ]
+            },
+            {
+               "name": "a6s.external",
+               "options": {
+                  "station": {
+                     "name": "a6s.sequence",
+                     "options": [
+                        {
+                           "name": "k8s.configMap.create",
+                           "options": {
+                              "name": "config",
+                              "inline": {
+                                 "default.js": "module.exports ={\n    port: 8080\n};"
+                              }
+                           }
+                        },
+                        {
+                           "name": "k8s.generic.secret.create",
+                           "options": {
+                              "name": "credentials",
+                              "inline": {
+                                 "credentials.json": "{\n  \"apiKey\": \"foo\",\n  \"endpoint\": \"http://boo.com\"\n}"
+                              }
+                           }
+                        },
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_your_service_chart",
+                              "name": "service_name",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "service_image",
+                                    "tag": "0.0.1",
+                                    "pullPolicy": "Always",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 },
+                                 "volumes": {
+                                    "configMap": [
+                                       {
+                                          "name": "shared-config",
+                                          "mountPath": "/usr/app/shared-config"
+                                       },
+                                       {
+                                          "name": "config",
+                                          "mountPath": "/usr/app/config"
+                                       }
+                                    ],
+                                    "secret": [
+                                       {
+                                          "name": "credentials",
+                                          "mountPath": "/usr/app/config-secret"
+                                       }
+                                    ]
+                                 }
+                              }
+                           }
+                        }
+                     ]
+                  }
+               },
+               "report": {
+                  "resolvers": [],
+                  "handler": null
+               },
+               "children": [
+                  {
+                     "name": "a6s.sequence",
+                     "options": [
+                        {
+                           "name": "k8s.configMap.create",
+                           "options": {
+                              "name": "config",
+                              "inline": {
+                                 "default.js": "module.exports ={\n    port: 8080\n};"
+                              }
+                           }
+                        },
+                        {
+                           "name": "k8s.generic.secret.create",
+                           "options": {
+                              "name": "credentials",
+                              "inline": {
+                                 "credentials.json": "{\n  \"apiKey\": \"foo\",\n  \"endpoint\": \"http://boo.com\"\n}"
+                              }
+                           }
+                        },
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_your_service_chart",
+                              "name": "service_name",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "service_image",
+                                    "tag": "0.0.1",
+                                    "pullPolicy": "Always",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 },
+                                 "volumes": {
+                                    "configMap": [
+                                       {
+                                          "name": "shared-config",
+                                          "mountPath": "/usr/app/shared-config"
+                                       },
+                                       {
+                                          "name": "config",
+                                          "mountPath": "/usr/app/config"
+                                       }
+                                    ],
+                                    "secret": [
+                                       {
+                                          "name": "credentials",
+                                          "mountPath": "/usr/app/config-secret"
+                                       }
+                                    ]
+                                 }
+                              }
+                           }
+                        }
+                     ],
+                     "report": {
+                        "resolvers": [],
+                        "handler": null
+                     },
+                     "children": [
+                        {
+                           "name": "k8s.helm.install",
+                           "options": {
+                              "chart": "path_to_your_service_chart",
+                              "name": "service_name",
+                              "variables": {
+                                 "service": {
+                                    "type": "NodePort"
+                                 },
+                                 "image": {
+                                    "repository": "service_image",
+                                    "tag": "0.0.1",
+                                    "pullPolicy": "Always",
+                                    "pullSecrets": [
+                                       "docker-credentials"
+                                    ]
+                                 },
+                                 "volumes": {
+                                    "configMap": [
+                                       {
+                                          "name": "shared-config",
+                                          "mountPath": "/usr/app/shared-config"
+                                       },
+                                       {
+                                          "name": "config",
+                                          "mountPath": "/usr/app/config"
+                                       }
+                                    ],
+                                    "secret": [
+                                       {
+                                          "name": "credentials",
+                                          "mountPath": "/usr/app/config-secret"
+                                       }
+                                    ]
+                                 }
+                              }
+                           },
+                           "report": {
+                              "resolvers": [],
+                              "handler": [
+                                 {
+                                    "type": "cmd",
+                                    "payload": {
+                                       "stdout": "",
+                                       "stderr": "",
+                                       "cmd": ""
+                                    }
+                                 }
+                              ]
+                           },
+                           "children": []
+                        },
+                        {
+                           "name": "k8s.generic.secret.create",
+                           "options": {
+                              "name": "credentials",
+                              "inline": {
+                                 "credentials.json": "{\n  \"apiKey\": \"foo\",\n  \"endpoint\": \"http://boo.com\"\n}"
+                              }
+                           },
+                           "report": {
+                              "resolvers": [],
+                              "handler": [
+                                 {
+                                    "type": "cmd",
+                                    "payload": {
+                                       "stdout": "",
+                                       "stderr": "",
+                                       "cmd": ""
+                                    }
+                                 }
+                              ]
+                           },
+                           "children": []
+                        },
+                        {
+                           "name": "k8s.configMap.create",
+                           "options": {
+                              "name": "config",
+                              "inline": {
+                                 "default.js": "module.exports ={\n    port: 8080\n};"
+                              }
+                           },
+                           "report": {
+                              "resolvers": [],
+                              "handler": [
+                                 {
+                                    "type": "cmd",
+                                    "payload": {
+                                       "stdout": "",
+                                       "stderr": "",
+                                       "cmd": ""
+                                    }
+                                 }
+                              ]
+                           },
+                           "children": []
+                        }
+                     ]
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}
