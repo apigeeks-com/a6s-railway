@@ -1,14 +1,14 @@
 import {readFile} from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as deepmerge from 'deepmerge';
-import {resolve, join, isAbsolute} from 'path';
+import {resolve, join, isAbsolute, dirname} from 'path';
 import {IRailWayResolver, IRailWayStation} from '../../interfaces/core';
 import {render} from 'ejs';
 import {BaseStationHandler, BaseResolver} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import {ProcessReporter} from './';
 import {IOC} from '../';
-import {IHandlerReportRecord} from '../../interfaces/IHandlerReportRecord';
+import {IHandlerReportRecord} from '../../interfaces';
 
 export class A6sRailwayUtil {
     private sharedContext: any;
@@ -241,7 +241,7 @@ export class A6sRailwayUtil {
             const fileContent = await this.readYamlFile(file);
 
             station.options = {
-                station: await this.resolveTree(fileContent.station, pwd, [...graphPath, name])
+                station: await this.resolveTree(fileContent.station, dirname(file), [...graphPath, name])
             };
         }
 
