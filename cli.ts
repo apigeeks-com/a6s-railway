@@ -36,9 +36,8 @@ const ctx = a6sRailwayUtil.getSharedContext();
 
 const init = async () => {
     const map = await a6sRailwayUtil.readYamlFile(commander.map);
-    const pwd = path.resolve(path.dirname(commander.map));
     ctx.pwd = path.dirname(commander.map);
-    map.station = await a6sRailwayUtil.resolveTree(map.station, pwd);
+    map.station = await a6sRailwayUtil.resolveTree(map.station, path.resolve(ctx.pwd));
 
     return map;
 };
