@@ -1,7 +1,6 @@
 import {BaseStationHandler} from '../../models';
 import {A6sRailway, A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import * as Joi from 'joi';
-import {resolve} from 'path';
 import {IOC} from '../../services';
 import {A6sRailwayUtil} from '../../services/utils';
 
