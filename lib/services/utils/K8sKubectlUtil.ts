@@ -1,4 +1,4 @@
-import {IK8sObject} from '../../interfaces';
+import {IK8sObject, IProcess} from '../../interfaces';
 import * as jsyaml from 'js-yaml';
 import {ChildProcessUtil, A6sRailwayUtil} from './';
 import {IOC} from '../IOC';
@@ -8,7 +8,9 @@ const tmp = require('tmp-promise');
 const fs = require('fs');
 
 export class K8sKubectlUtil {
-
+    /**
+     * @return {ChildProcessUtil}
+     */
     private get childProcessUtil(): ChildProcessUtil {
         return IOC.get(ChildProcessUtil);
     }
@@ -41,16 +43,25 @@ export class K8sKubectlUtil {
      * @param {IK8sObject} k8sObject
      * @returns {Promise<void>}
      */
-    async createObject(k8sObject: IK8sObject): Promise<void> {
+    async createObject(k8sObject: IK8sObject): Promise<IProcess> {
         const tmpFile = await tmp.file();
         fs.writeFileSync(tmpFile.path, jsyaml.dump(k8sObject), 'utf8');
-        const result = await this.childProcessUtil.exec('kubectl create -f ' + tmpFile.path);
+
+        const cmd = 'kubectl create -f ' + tmpFile.path;
+
+        const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
             throw new Error(`Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
         }
 
         this.registerHash(k8sObject);
+
+        return {
+            stdout: result.stdout,
+            stderr: result.stderr,
+            cmd,
+        };
     }
 
     /**
@@ -58,16 +69,24 @@ export class K8sKubectlUtil {
      * @param {IK8sObject} k8sObject
      * @return {Promise<void>}
      */
-    async applyObject(k8sObject: IK8sObject): Promise<void> {
+    async applyObject(k8sObject: IK8sObject): Promise<IProcess> {
         const tmpFile = await tmp.file();
         fs.writeFileSync(tmpFile.path, jsyaml.dump(k8sObject), 'utf8');
-        const result = await this.childProcessUtil.exec('kubectl apply -f ' + tmpFile.path);
+
+        const cmd = 'kubectl apply -f ' + tmpFile.path;
+        const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
             throw new Error(`Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
         }
 
         this.registerHash(k8sObject);
+
+        return {
+            stdout: result.stdout,
+            stderr: result.stderr,
+            cmd,
+        };
     }
 
     /**
@@ -94,6 +113,7 @@ export class K8sKubectlUtil {
 
         // populate hash
         sharedContext.k8s.hash[k8sObject.kind][k8sObject.metadata.name] = createHash('sha256').update(content).digest('base64');
+
     }
 
     /**

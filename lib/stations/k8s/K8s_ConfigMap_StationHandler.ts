@@ -1,4 +1,4 @@
-import {IK8sObject} from '../../interfaces';
+import {IK8sObject, IReportRecord} from '../../interfaces';
 import * as Joi from 'joi';
 import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import * as fs from 'fs';
@@ -57,9 +57,9 @@ export class K8s_ConfigMap_StationHandler extends K8s_Kubectl_ApplyObject_Statio
     /**
      * @param options
      * @param {A6sRailwayStationHandlersRegistry} plugins
-     * @return {Promise<void>}
+     * @return {Promise<IReportRecord[]>}
      */
-    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<void> {
+    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
         const object: IK8sObject = {
             apiVersion: 'v1',
             kind: 'ConfigMap',
@@ -85,7 +85,7 @@ export class K8s_ConfigMap_StationHandler extends K8s_Kubectl_ApplyObject_Statio
             }
         }
 
-        await super.run(object, plugins);
+        return await super.run(object, plugins);
     }
 
     /**

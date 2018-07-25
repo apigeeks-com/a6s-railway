@@ -25,12 +25,6 @@ const tmp = require('tmp-promise');
         await AssertHelper.shouldReject(async () => {
             await station.validate({});
         }, 'empty object');
-
-        await AssertHelper.shouldReject(async () => {
-            await station.validate({
-                test: 'abc'
-            });
-        }, 'invalid schema');
     }
 
     @test
@@ -71,13 +65,17 @@ const tmp = require('tmp-promise');
         ].join('\n'));
 
         let executed = false;
-        await station.run({
-            file: tmpFilePath
-        }, {
-            st: new MockStationHandler(() => {
-                executed = true;
-            }, 'st')
-        }, {});
+        await station.run(
+            {
+                file: tmpFilePath
+            },
+            {
+                st: new MockStationHandler(() => {
+                    executed = true;
+                }, 'st')
+            },
+            {}
+        );
 
         assert(executed);
     }
