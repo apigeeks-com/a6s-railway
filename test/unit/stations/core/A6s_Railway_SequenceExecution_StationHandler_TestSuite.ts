@@ -56,15 +56,20 @@ const assert = require('assert');
     async processed(): Promise<void> {
         const station = new A6s_Railway_SequenceExecution_StationHandler();
         let executed = false;
-        await station.run([
+        await station.run(
+            [
+                {
+                    name: 'st'
+                }
+            ],
             {
-                name: 'st'
-            }
-        ], {
-            st: new MockStationHandler(() => {
-                executed = true;
-            }, 'st')
-        }, {});
+                st: new MockStationHandler(() => {
+                    executed = true;
+                }, 'st')
+            },
+            {},
+            []
+        );
 
         assert(executed);
     }

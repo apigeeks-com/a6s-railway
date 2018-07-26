@@ -71,7 +71,7 @@ const assert = require('assert');
             st: new MockStationHandler(() => {
                 executed = true;
             })
-        }, {});
+        }, {}, []);
 
         assert(executed);
     }
@@ -90,7 +90,7 @@ const assert = require('assert');
             st: new MockStationHandler(() => {
                 executed = true;
             })
-        }, {});
+        }, {}, []);
 
         assert(!executed);
     }

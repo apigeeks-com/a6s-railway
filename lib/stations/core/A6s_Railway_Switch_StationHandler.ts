@@ -34,10 +34,15 @@ export class A6s_Railway_Switch_StationHandler extends BaseStationHandler {
         }
     }
 
-    async run(options: any, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<void> {
+    async run(
+        options: any,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        parentsPath: string[]
+    ): Promise<void> {
         const option = options.switch[options.value];
         if (option) {
-            await this.a6sRailwayUtil.processStation(option, handlers, resolvers);
+            await this.a6sRailwayUtil.processStation(option, handlers, resolvers, parentsPath);
         }
     }
 }

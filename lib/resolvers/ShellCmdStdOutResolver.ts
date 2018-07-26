@@ -1,6 +1,7 @@
 import {BaseResolver} from '../models';
 import {exec} from 'child_process';
 import * as Joi from 'joi';
+import {IReportRecord, IReportRecordType} from '../interfaces';
 
 export class ShellCmdStdOutResolver extends BaseResolver {
     getName(): string {
@@ -21,16 +22,21 @@ export class ShellCmdStdOutResolver extends BaseResolver {
         }
     }
 
-    async run(name: string, options: any, sharedContext: any, resolvers: {[name: string]: BaseResolver}): Promise<void> {
-        await new Promise<void>((resolve, reject) => {
+    async run(name: string, options: any, sharedContext: any, resolvers: {[name: string]: BaseResolver}): Promise<IReportRecord[]> {
+        const result = await new Promise<any>((resolve, reject) => {
             exec(options.cmd, (err, stdout) => {
                 if (err) {
                     return reject(err);
                 }
 
                 sharedContext[name] = stdout && stdout.trim();
-                resolve();
+                resolve(sharedContext[name]);
             });
         });
+
+        return [{
+            type: IReportRecordType.RESOLVER,
+            payload: Object.assign(result)
+        }];
     }
 }

@@ -89,7 +89,7 @@ const assert = require('assert');
             st: new MockStationHandler(() => {
                 executed = true;
             }, 'st')
-        }, {});
+        }, {}, []);
 
         assert(executed);
     }
@@ -109,7 +109,7 @@ const assert = require('assert');
             st: new MockStationHandler(() => {
                 executed = true;
             })
-        }, {});
+        }, {}, []);
 
         assert(!executed);
     }
