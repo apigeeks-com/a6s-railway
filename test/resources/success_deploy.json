@@ -69,6 +69,30 @@
                },
                "children": [
                   {
+                     "name": "k8s.configMap.create",
+                     "options": {
+                        "name": "shared-config",
+                        "inline": {
+                           "default.json": "{\n  \"tree\": {\n      \"key1\": {\n          \"enabled\": true\n      },\n\n      \"key2\": {\n          \"enabled\": truea\n      }\n  },\n}"
+                        }
+                     },
+                     "report": {
+                        "resolvers": [],
+                        "handler": [
+                           {
+                              "type": "cmd",
+                              "payload": {
+                                 "code": 0,
+                                 "stdout": "",
+                                 "stderr": "",
+                                 "cmd": ""
+                              }
+                           }
+                        ]
+                     },
+                     "children": []
+                  },
+                  {
                      "name": "k8s.docker.secret.create",
                      "options": {
                         "name": "docker-credentials",
@@ -83,29 +107,7 @@
                            {
                               "type": "cmd",
                               "payload": {
-                                 "stdout": "",
-                                 "stderr": "",
-                                 "cmd": ""
-                              }
-                           }
-                        ]
-                     },
-                     "children": []
-                  },
-                  {
-                     "name": "k8s.configMap.create",
-                     "options": {
-                        "name": "shared-config",
-                        "inline": {
-                           "default.json": "{\n  \"tree\": {\n      \"key1\": {\n          \"enabled\": true\n      },\n\n      \"key2\": {\n          \"enabled\": truea\n      }\n  },\n}"
-                        }
-                     },
-                     "report": {
-                        "resolvers": [],
-                        "handler": [
-                           {
-                              "type": "cmd",
-                              "payload": {
+                                 "code": 0,
                                  "stdout": "",
                                  "stderr": "",
                                  "cmd": ""
@@ -202,6 +204,7 @@
                                  {
                                     "type": "cmd",
                                     "payload": {
+                                       "code": 0,
                                        "stdout": "",
                                        "stderr": "",
                                        "cmd": ""
@@ -291,6 +294,30 @@
                      },
                      "children": [
                         {
+                           "name": "k8s.generic.secret.create",
+                           "options": {
+                              "name": "credentials",
+                              "inline": {
+                                 "credentials.json": "{\n  \"apiKey\": \"foo\",\n  \"endpoint\": \"http://boo.com\"\n}"
+                              }
+                           },
+                           "report": {
+                              "resolvers": [],
+                              "handler": [
+                                 {
+                                    "type": "cmd",
+                                    "payload": {
+                                       "code": 0,
+                                       "stdout": "",
+                                       "stderr": "",
+                                       "cmd": ""
+                                    }
+                                 }
+                              ]
+                           },
+                           "children": []
+                        },
+                        {
                            "name": "k8s.helm.install",
                            "options": {
                               "chart": "path_to_your_service_chart",
@@ -333,29 +360,7 @@
                                  {
                                     "type": "cmd",
                                     "payload": {
-                                       "stdout": "",
-                                       "stderr": "",
-                                       "cmd": ""
-                                    }
-                                 }
-                              ]
-                           },
-                           "children": []
-                        },
-                        {
-                           "name": "k8s.generic.secret.create",
-                           "options": {
-                              "name": "credentials",
-                              "inline": {
-                                 "credentials.json": "{\n  \"apiKey\": \"foo\",\n  \"endpoint\": \"http://boo.com\"\n}"
-                              }
-                           },
-                           "report": {
-                              "resolvers": [],
-                              "handler": [
-                                 {
-                                    "type": "cmd",
-                                    "payload": {
+                                       "code": 0,
                                        "stdout": "",
                                        "stderr": "",
                                        "cmd": ""
@@ -379,6 +384,7 @@
                                  {
                                     "type": "cmd",
                                     "payload": {
+                                       "code": 0,
                                        "stdout": "",
                                        "stderr": "",
                                        "cmd": ""

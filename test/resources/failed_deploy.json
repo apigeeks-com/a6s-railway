@@ -83,6 +83,7 @@
                            {
                               "type": "cmd",
                               "payload": {
+                                 "code": 0,
                                  "stdout": "",
                                  "stderr": "",
                                  "cmd": ""
@@ -106,6 +107,7 @@
                            {
                               "type": "cmd",
                               "payload": {
+                                 "code": 0,
                                  "stdout": "",
                                  "stderr": "",
                                  "cmd": ""
@@ -213,6 +215,7 @@
                                  {
                                     "type": "cmd",
                                     "payload": {
+                                       "code": 0,
                                        "stdout": "",
                                        "stderr": "",
                                        "cmd": ""
