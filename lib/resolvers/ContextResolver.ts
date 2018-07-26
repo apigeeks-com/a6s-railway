@@ -1,5 +1,6 @@
 import {BaseResolver} from '../models';
 import * as Joi from 'joi';
+import {IReportRecord, IReportRecordType} from '../interfaces';
 
 export class ContextResolver extends BaseResolver {
     getName(): string {
@@ -18,8 +19,9 @@ export class ContextResolver extends BaseResolver {
         }
     }
 
-    async run(name: string, options: any, sharedContext: any, resolvers: {[name: string]: BaseResolver}): Promise<void> {
+    async run(name: string, options: any, sharedContext: any, resolvers: {[name: string]: BaseResolver}): Promise<IReportRecord[]> {
         let obj = sharedContext;
+
         if (name.length) {
             obj = sharedContext[name];
             if (!obj) {
@@ -27,6 +29,9 @@ export class ContextResolver extends BaseResolver {
             }
         }
 
-        Object.assign(obj, options);
+        return [{
+            type: IReportRecordType.RESOLVER,
+            payload: Object.assign(obj, options)
+        }];
     }
 }
