@@ -9,8 +9,6 @@ export class MockProcessReporter extends ProcessReporter {
         report: IHandlerReportRecord,
         options: any,
     ) {
-        const handler = this.handlers.get(path);
-
         if (report.handler) {
             report.handler = report.handler.map(r => {
                 if (r.payload.cmd) {
