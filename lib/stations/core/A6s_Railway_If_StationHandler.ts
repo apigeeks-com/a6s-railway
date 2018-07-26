@@ -39,9 +39,14 @@ export class A6s_Railway_If_StationHandler extends BaseStationHandler {
         }
     }
 
-    async run(options: any, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<void> {
+    async run(
+        options: any,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        parentsPath: string[]
+    ): Promise<void> {
        if (options.value === options.equals) {
-           await this.a6sRailwayUtil.processStation(options.station, handlers, resolvers);
+           await this.a6sRailwayUtil.processStation(options.station, handlers, resolvers, parentsPath);
        }
     }
 }
