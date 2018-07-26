@@ -1,14 +1,15 @@
 import {readFile} from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as deepmerge from 'deepmerge';
-import {resolve, join, isAbsolute, dirname} from 'path';
+import {resolve, isAbsolute} from 'path';
 import {IRailWayResolver, IRailWayStation} from '../../interfaces/core';
 import {render} from 'ejs';
 import {BaseStationHandler, BaseResolver} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import {ProcessReporter} from './';
 import {IOC} from '../';
-import {IHandlerReportRecord} from '../../interfaces';
+import {IHandlerReportRecord, IReportRecord, IReportRecordType} from '../../interfaces';
+import {CmdException, ParallelException} from '../../exception';
 
 export class A6sRailwayUtil {
     private sharedContext: any;
@@ -106,10 +107,49 @@ export class A6sRailwayUtil {
 
         if (shouldRun) {
             console.log(`-> Executing ${s.name}`);
-            const handlerResult = await handler.run(options, handlers, resolvers, handlerPath);
+            try {
+                const handlerResult = await handler.run(options, handlers, resolvers, handlerPath);
 
-            if (handlerResult) {
-                result.handler = handlerResult;
+                if (handlerResult) {
+                    result.handler = handlerResult;
+                }
+            } catch (e) {
+                let exceptions = [];
+
+                if (e instanceof ParallelException) {
+                    exceptions = e.getExceptions();
+                } else {
+                    exceptions = [e];
+                }
+
+                this.processReporter.registerHandler(
+                    handlerPath,
+                    s,
+                    {
+                        ...result,
+                        handler: exceptions
+                            .map((exception: Error): IReportRecord => {
+                                if (exception instanceof CmdException) {
+                                    return {
+                                        type: IReportRecordType.CMD,
+                                        payload: {
+                                            cmd: exception.cmd,
+                                            message: exception.message,
+                                            code: exception.childProcess.code,
+                                            stdout: exception.childProcess.stdout,
+                                            stderr: exception.childProcess.stderr,
+                                        }
+                                    };
+                                }
+
+                                return undefined;
+                            })
+                            .filter(exception => !!exception)
+                    },
+                    options
+                );
+
+                throw new Error(e.message);
             }
         } else {
             console.log(`-> Execution skipped for ${s.name}`);
