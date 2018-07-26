@@ -9,7 +9,7 @@ import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../
 import {ProcessReporter} from './';
 import {IOC} from '../';
 import {IHandlerReportRecord, IReportRecord, IReportRecordType} from '../../interfaces';
-import {CmdException, ParallelException} from '../../exception';
+import {ProcessException, ParallelProcessingException} from '../../exception';
 
 export class A6sRailwayUtil {
     private sharedContext: any;
@@ -116,7 +116,7 @@ export class A6sRailwayUtil {
             } catch (e) {
                 let exceptions = [];
 
-                if (e instanceof ParallelException) {
+                if (e instanceof ParallelProcessingException) {
                     exceptions = e.getExceptions();
                 } else {
                     exceptions = [e];
@@ -129,15 +129,13 @@ export class A6sRailwayUtil {
                         ...result,
                         handler: exceptions
                             .map((exception: Error): IReportRecord => {
-                                if (exception instanceof CmdException) {
+                                if (exception instanceof ProcessException) {
                                     return {
                                         type: IReportRecordType.CMD,
                                         payload: {
-                                            cmd: exception.cmd,
-                                            message: exception.message,
-                                            code: exception.childProcess.code,
-                                            stdout: exception.childProcess.stdout,
-                                            stderr: exception.childProcess.stderr,
+                                            exception: exception.message,
+                                            type: exception.type,
+                                            payload: exception.payload,
                                         }
                                     };
                                 }

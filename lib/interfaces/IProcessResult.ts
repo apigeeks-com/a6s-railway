@@ -1,6 +1,6 @@
-export interface IProcess {
+export interface IProcessResult {
     stdout: string;
     stderr: string;
-    code?: number;
+    code: number;
     cmd: string;
 }

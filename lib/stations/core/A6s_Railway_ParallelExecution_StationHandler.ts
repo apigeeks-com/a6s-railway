@@ -5,7 +5,7 @@ import {IOC} from '../../services';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import {IRailWayStation_JOI_SCHEMA} from '../../interfaces/core';
 import * as Joi from 'joi';
-import {ParallelException} from '../../exception/ParallelException';
+import {ParallelProcessingException} from '../../exception';
 
 export class A6s_Railway_ParallelExecution_StationHandler extends BaseStationHandler {
     private get a6sRailwayUtil(): A6sRailwayUtil {
@@ -38,18 +38,11 @@ export class A6s_Railway_ParallelExecution_StationHandler extends BaseStationHan
         resolvers: A6sRailwayResolverRegistry,
         parentsPath: string[]
     ): Promise<void> {
-        const parallelException = new ParallelException();
+        const parallelException = new ParallelProcessingException(options.length);
         const promises = options.map(async (s: IRailWayStation): Promise<void> => {
             try {
                 await this.a6sRailwayUtil.processStation(s, handlers, resolvers, parentsPath);
             } catch (e) {
-                e.message = [
-                    '------------------',
-                    `Parallel execution of plugin ${s.name} failed.`,
-                    e.message,
-                    '------------------',
-                ].join('\n');
-
                 parallelException.addException(e);
             }
         });
