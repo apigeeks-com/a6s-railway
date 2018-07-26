@@ -3,6 +3,7 @@ import * as jsyaml from 'js-yaml';
 import {ChildProcessUtil, A6sRailwayUtil} from './';
 import {IOC} from '../IOC';
 import {createHash} from 'crypto';
+import {CmdException} from '../../exception';
 
 const tmp = require('tmp-promise');
 const fs = require('fs');
@@ -52,7 +53,11 @@ export class K8sKubectlUtil {
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new Error(`Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
+            throw new CmdException(
+                `Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`,
+                cmd,
+                <IProcess>result
+            );
         }
 
         this.registerHash(k8sObject);
@@ -77,7 +82,11 @@ export class K8sKubectlUtil {
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new Error(`Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
+            throw new CmdException(
+                `Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`,
+                cmd,
+                <IProcess>result
+            );
         }
 
         this.registerHash(k8sObject);

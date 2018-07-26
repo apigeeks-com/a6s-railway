@@ -4,6 +4,7 @@ import {flatten} from 'flat';
 import {ChildProcessUtil} from './ChildProcessUtil';
 import {IOC} from '../IOC';
 import {A6sRailwayUtil} from './A6sRailwayUtil';
+import {CmdException} from '../../exception';
 
 export class K8sHelmUtil {
     /**
@@ -24,7 +25,11 @@ export class K8sHelmUtil {
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new Error(result.stderr);
+            throw new CmdException(
+                result.stderr,
+                cmd,
+                <IProcess>result
+            );
         }
 
         return {
@@ -83,7 +88,11 @@ export class K8sHelmUtil {
         const result = await this.childProcessUtil.exec(cmd.join(' '));
 
         if (result.code !== 0) {
-            throw new Error(result.stderr);
+            throw new CmdException(
+                result.stderr,
+                cmd.join(' '),
+                <IProcess>result
+            );
         }
 
         return {
