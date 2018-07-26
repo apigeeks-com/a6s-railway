@@ -11,6 +11,8 @@ import {IOC} from '../';
 import {IHandlerReportRecord, IReportRecord, IReportRecordType} from '../../interfaces';
 import {ProcessException, ParallelProcessingException} from '../../exception';
 
+const ejsLint = require('ejs-lint');
+
 export class A6sRailwayUtil {
     private sharedContext: any;
     private handlerIndex = 0;
@@ -223,6 +225,9 @@ export class A6sRailwayUtil {
     _processOptionsTemplate(options: any): any {
         if (options) {
             let yaml = jsyaml.dump(options);
+
+            // validate template
+            ejsLint(yaml);
 
             yaml = render(yaml, {
                 env: process.env,
