@@ -5,13 +5,15 @@ import * as mkdirp from 'mkdirp';
 import * as util from 'util';
 import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import {BaseStationHandler} from '../../models';
+import {IOC} from '../../services';
+import {A6sRailwayUtil} from '../../services/utils';
 
 export class Write_File_StationHandler extends BaseStationHandler {
     /**
      * @return {string}
      */
     getName(): string {
-        return 'k8s.file.write';
+        return 'a6s.file.write';
     }
 
     /**
@@ -54,6 +56,9 @@ export class Write_File_StationHandler extends BaseStationHandler {
             mkdirp.sync(baseDir);
         }
 
-        await util.promisify(fs.writeFile)(options.path, options.content);
+        const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
+        const file = a6sRailwayUtil.getAbsolutePath(options.path);
+
+        await util.promisify(fs.writeFile)(file, options.content);
     }
 }
