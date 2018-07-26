@@ -1,9 +1,9 @@
-import {IHelmDeploymentInfo, IHelmChartInstall, IProcess} from '../../interfaces';
+import {IHelmDeploymentInfo, IHelmChartInstall, IProcessResult} from '../../interfaces';
 import * as yaml from 'js-yaml';
-import {flatten} from 'flat';
 import {ChildProcessUtil} from './ChildProcessUtil';
 import {IOC} from '../IOC';
 import {A6sRailwayUtil} from './A6sRailwayUtil';
+import {ProcessException, ProcessExceptionType} from '../../exception';
 
 const tmp = require('tmp-promise');
 const fs = require('fs');
@@ -22,15 +22,20 @@ export class K8sHelmUtil {
      * @param {string} namespace
      * @return {Promise<void>}
      */
-    async remove(name: string, namespace: string): Promise<IProcess> {
+    async remove(name: string, namespace: string): Promise<IProcessResult> {
         const cmd = `helm del --namespace ${namespace} --purge ${name}`;
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new Error(result.stderr);
+            throw new ProcessException(
+                result.stderr,
+                ProcessExceptionType.CMD_ERROR,
+                {cmd, ... <IProcessResult>result}
+            );
         }
 
         return {
+            code: result.code,
             stdout: result.stdout,
             stderr: result.stderr,
             cmd,
@@ -42,7 +47,7 @@ export class K8sHelmUtil {
      * @param {IHelmChartInstall} config
      * @return {Promise<void>}
      */
-    async updateOrInstall(config: IHelmChartInstall): Promise<IProcess> {
+    async updateOrInstall(config: IHelmChartInstall): Promise<IProcessResult> {
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
 
         const cmd = [
@@ -78,10 +83,15 @@ export class K8sHelmUtil {
         const result = await this.childProcessUtil.exec(cmd.join(' '));
 
         if (result.code !== 0) {
-            throw new Error(result.stderr);
+            throw new ProcessException(
+                result.stderr,
+                ProcessExceptionType.CMD_ERROR,
+                {cmd, ... <IProcessResult>result}
+            );
         }
 
         return {
+            code: result.code,
             stdout: result.stdout,
             stderr: result.stderr,
             cmd: cmd.join(' '),

@@ -1,8 +1,9 @@
-import {IK8sObject, IProcess} from '../../interfaces';
+import {IK8sObject, IProcessResult} from '../../interfaces';
 import * as jsyaml from 'js-yaml';
 import {ChildProcessUtil, A6sRailwayUtil} from './';
 import {IOC} from '../IOC';
 import {createHash} from 'crypto';
+import {ProcessException, ProcessExceptionType} from '../../exception';
 
 const tmp = require('tmp-promise');
 const fs = require('fs');
@@ -43,7 +44,7 @@ export class K8sKubectlUtil {
      * @param {IK8sObject} k8sObject
      * @returns {Promise<void>}
      */
-    async createObject(k8sObject: IK8sObject): Promise<IProcess> {
+    async createObject(k8sObject: IK8sObject): Promise<IProcessResult> {
         const tmpFile = await tmp.file();
         fs.writeFileSync(tmpFile.path, jsyaml.dump(k8sObject), 'utf8');
 
@@ -52,12 +53,17 @@ export class K8sKubectlUtil {
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new Error(`Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
+            throw new ProcessException(
+                `Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`,
+                ProcessExceptionType.CMD_ERROR,
+                {cmd, ... <IProcessResult>result}
+            );
         }
 
         this.registerHash(k8sObject);
 
         return {
+            code: result.code,
             stdout: result.stdout,
             stderr: result.stderr,
             cmd,
@@ -69,7 +75,7 @@ export class K8sKubectlUtil {
      * @param {IK8sObject} k8sObject
      * @return {Promise<void>}
      */
-    async applyObject(k8sObject: IK8sObject): Promise<IProcess> {
+    async applyObject(k8sObject: IK8sObject): Promise<IProcessResult> {
         const tmpFile = await tmp.file();
         fs.writeFileSync(tmpFile.path, jsyaml.dump(k8sObject), 'utf8');
 
@@ -77,12 +83,17 @@ export class K8sKubectlUtil {
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new Error(`Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`);
+            throw new ProcessException(
+                `Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`,
+                ProcessExceptionType.CMD_ERROR,
+                {cmd, ... <IProcessResult>result}
+            );
         }
 
         this.registerHash(k8sObject);
 
         return {
+            code: result.code,
             stdout: result.stdout,
             stderr: result.stderr,
             cmd,
