@@ -62,8 +62,7 @@ new A6sRailway(commander.map)
         new plugins.K8s_Secret_TLS_StationHandler(),
 
         new plugins.Write_File_StationHandler(),
-    ])
-    .register([
+
         // resolvers
         new ContextResolver(),
         new ShellCmdStdOutResolver(),

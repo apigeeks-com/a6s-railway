@@ -75,7 +75,7 @@ export class A6sRailway {
      * @param {BaseStationHandler | BaseResolver | BaseStationHandler[] | BaseResolver[]} entry
      * @returns {A6sRailway}
      */
-    public register(entry: BaseStationHandler | BaseResolver | BaseStationHandler[] | BaseResolver[]): A6sRailway {
+    public register(entry: BaseStationHandler | BaseResolver | Array<BaseStationHandler | BaseResolver>): A6sRailway {
         if (Array.isArray(entry)) {
             for (const i in entry) {
                 this._register(entry[i]);
