@@ -5,6 +5,9 @@ import {ChildProcessUtil} from './ChildProcessUtil';
 import {IOC} from '../IOC';
 import {A6sRailwayUtil} from './A6sRailwayUtil';
 
+const tmp = require('tmp-promise');
+const fs = require('fs');
+
 export class K8sHelmUtil {
     /**
      * @return {ChildProcessUtil}
@@ -64,17 +67,9 @@ export class K8sHelmUtil {
         });
 
         if (config.variables) {
-            const flattened: any = flatten(config.variables);
-            const keyValue = [];
-            for (const key in flattened) {
-                if (flattened.hasOwnProperty(key)) {
-                    keyValue.push(key + '=' + flattened[key]);
-                }
-            }
-
-            if (keyValue.length) {
-                cmd.push('--set ' + keyValue.join(','));
-            }
+            const tmpFile = await tmp.file();
+            fs.writeFileSync(tmpFile.path, yaml.dump(config.variables), 'utf8');
+            cmd.push('-f ' + tmpFile.path);
         }
 
         cmd.push(config.name);
