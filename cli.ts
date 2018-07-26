@@ -6,9 +6,9 @@ import {A6sRailway} from './lib/A6sRailway';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import * as fs from 'fs';
-import {A6sRailwayUtil, K8sHelmUtil, ProcessReporter} from './lib/services/utils';
+import {ProcessReporter} from './lib/services/utils';
 import {IOC} from './lib/services';
-import {ShellCmdStdOutResolver, ContextResolver} from './lib/resolvers';
+import {ContextResolver, ShellCmdStdOutResolver} from './lib/resolvers';
 
 // prepare commander
 commander
@@ -29,17 +29,7 @@ if (!commander.map) {
     process.exit(1);
 }
 
-
 const processReporter = IOC.get(ProcessReporter);
-const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
-
-const init = async () => {
-    const map = await a6sRailwayUtil.readYamlFile(commander.map);
-    const pwd = path.resolve(path.dirname(commander.map));
-    map.station = await a6sRailwayUtil.resolveTree(map.station, pwd);
-
-    return map;
-};
 
 const saveReport = (reportPath: string) => {
     if (reportPath) {
@@ -53,42 +43,38 @@ const saveReport = (reportPath: string) => {
     }
 };
 
-init().then((configMap) => {
-    const a6sRailway = new A6sRailway(configMap);
+new A6sRailway(commander.map)
+    .register([
+        // load flow control stations
+        new plugins.A6s_Railway_If_StationHandler(),
+        new plugins.A6s_Railway_Switch_StationHandler(),
+        new plugins.A6s_Railway_ExternalFile_StationHandler(),
+        new plugins.A6s_Railway_ParallelExecution_StationHandler(),
+        new plugins.A6s_Railway_SequenceExecution_StationHandler(),
 
-    a6sRailway
-        .register([
-            // load flow control stations
-            new plugins.A6s_Railway_If_StationHandler(),
-            new plugins.A6s_Railway_Switch_StationHandler(),
-            new plugins.A6s_Railway_ExternalFile_StationHandler(),
-            new plugins.A6s_Railway_ParallelExecution_StationHandler(),
-            new plugins.A6s_Railway_SequenceExecution_StationHandler(),
+        // load application specific stations
+        new plugins.K8s_Helm_Deployment_StationHandler(),
+        new plugins.K8s_Kubectl_ApplyObject_StationHandler(),
 
-            // load application specific stations
-            new plugins.K8s_Helm_Deployment_StationHandler(),
-            new plugins.K8s_Kubectl_ApplyObject_StationHandler(),
+        new plugins.K8s_ConfigMap_StationHandler(),
+        new plugins.K8s_Secret_Docker_Registry_StationHandler(),
+        new plugins.K8s_Secret_Generic_StationHandler(),
+        new plugins.K8s_Secret_TLS_StationHandler(),
 
-            new plugins.K8s_ConfigMap_StationHandler(),
-            new plugins.K8s_Secret_Docker_Registry_StationHandler(),
-            new plugins.K8s_Secret_Generic_StationHandler(),
-            new plugins.K8s_Secret_TLS_StationHandler(),
-
-            new plugins.Write_File_StationHandler(),
-
-            // resolvers
-            new ContextResolver(),
-            new ShellCmdStdOutResolver(),
-
-        ])
-        .execute()
-        .then(() => {
-            saveReport(commander.output);
-        })
-        .catch(e => {
-            saveReport(commander.output);
-            console.error(e);
-            process.exit(1);
-        })
-    ;
-});
+        new plugins.Write_File_StationHandler(),
+    ])
+    .register([
+        // resolvers
+        new ContextResolver(),
+        new ShellCmdStdOutResolver(),
+    ])
+    .execute()
+    .then(() => {
+        saveReport(commander.output);
+    })
+    .catch(e => {
+        saveReport(commander.output);
+        console.error(e);
+        process.exit(1);
+    })
+;

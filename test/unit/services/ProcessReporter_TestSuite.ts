@@ -1,7 +1,7 @@
 import { suite, test } from 'mocha-typescript';
 import {IOC, ChildProcessUtil} from '../../../lib/services';
 import * as path from 'path';
-import {A6sRailwayUtil, ProcessReporter} from '../../../lib/services/utils';
+import {ProcessReporter} from '../../../lib/services/utils';
 import * as plugins from '../../../lib/stations';
 import {A6sRailway} from '../../../lib/A6sRailway';
 import * as fs from 'fs';
@@ -21,6 +21,7 @@ const assert = require('assert');
             stdout: ''
         };
     }
+
     before() {
         IOC.register(ChildProcessUtil, {
             exec: async (command: string): Promise<{stdout: string, stderr: string, code: number}> => {
@@ -40,14 +41,8 @@ const assert = require('assert');
     @test
     async successDeploy(): Promise<void> {
         const processReporter = IOC.get(ProcessReporter);
-        const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
-        const pathToSample = 'test/resources/success_sample/deploy.yml';
 
-        const map = await a6sRailwayUtil.readYamlFile(path.resolve(pathToSample));
-        const pwd = path.resolve(path.dirname(pathToSample));
-        map.station = await a6sRailwayUtil.resolveTree(map.station, pwd);
-
-        await this.getRailway(map).execute();
+        await this.getRailway(path.resolve('test/resources/success_sample/deploy.yml')).execute();
         const reference = await util.promisify(fs.readFile)('test/resources/success_deploy.json');
 
         assert.deepStrictEqual(JSON.parse(JSON.stringify(processReporter.getReport())), JSON.parse(reference.toString()));
@@ -56,15 +51,9 @@ const assert = require('assert');
     @test
     async failedDeploy(): Promise<void> {
         const processReporter = IOC.get(ProcessReporter);
-        const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
-        const pathToSample = 'test/resources/failed_deploy/deploy.yml';
-
-        const map = await a6sRailwayUtil.readYamlFile(path.resolve(pathToSample));
-        const pwd = path.resolve(path.dirname(pathToSample));
-        map.station = await a6sRailwayUtil.resolveTree(map.station, pwd);
 
         try {
-            await this.getRailway(map).execute();
+            await this.getRailway(path.resolve('test/resources/failed_deploy/deploy.yml')).execute();
             assert(false);
         } catch (e) {
             const reference = await util.promisify(fs.readFile)('test/resources/failed_deploy.json');

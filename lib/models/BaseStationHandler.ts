@@ -40,7 +40,13 @@ export abstract class BaseStationHandler {
      * @param options
      * @param handlers
      * @param resolvers
+     * @param parentsPath
      * @returns {Promise<void>}
      */
-    async run(options: any, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<IReportRecord[] | void> {} // tslint:disable-line
+    async run(
+        options: any,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        parentsPath?: string[] | any
+    ): Promise<IReportRecord[] | void> {} // tslint:disable-line
 }

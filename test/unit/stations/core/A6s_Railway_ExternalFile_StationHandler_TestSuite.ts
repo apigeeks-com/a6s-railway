@@ -45,9 +45,13 @@ const tmp = require('tmp-promise');
         const tmpFile = await tmp.file();
 
         await AssertHelper.shouldReject(async () => {
-            await station.run({
-                file: tmpFile + '.err'
-            }, {}, {});
+            await station.run(
+                {
+                    file: tmpFile + '.err'
+                },
+                {},
+                {},
+                []);
         });
     }
 
@@ -74,7 +78,8 @@ const tmp = require('tmp-promise');
                     executed = true;
                 }, 'st')
             },
-            {}
+            {},
+            []
         );
 
         assert(executed);

@@ -2,18 +2,36 @@ import {IRailwayMap} from './interfaces';
 import {BaseResolver, BaseStationHandler} from './models';
 import {A6sRailwayUtil} from './services/utils';
 import {IOC} from './services';
+import {dirname} from 'path';
 
 export type A6sRailwayStationHandlersRegistry = {[name: string]: BaseStationHandler};
 export type A6sRailwayResolverRegistry = {[name: string]: BaseResolver};
 
 export class A6sRailway {
+
     private handlers: A6sRailwayStationHandlersRegistry;
     private resolvers: A6sRailwayResolverRegistry;
+
+    private map: IRailwayMap;
+    private mapFile: string;
+    private parentsPath: string[] = [];
+
     private a6sRailwayUtil: A6sRailwayUtil;
 
     constructor(
-        private map: IRailwayMap
+        map: IRailwayMap | string,
+        parentsPath?: string[],
     ) {
+        if (typeof map === 'string') {
+            this.mapFile = map;
+        } else {
+            this.map = map;
+        }
+
+        if (parentsPath) {
+            this.parentsPath = parentsPath;
+        }
+
         this.handlers = {};
         this.resolvers = {};
         this.a6sRailwayUtil = IOC.get(A6sRailwayUtil);
@@ -42,10 +60,6 @@ export class A6sRailway {
         return this;
     }
 
-    /**
-     * @param {BaseStationHandler | BaseResolver} entry
-     * @private
-     */
     private _register(entry: BaseStationHandler | BaseResolver) {
         if (entry instanceof BaseStationHandler) {
             this.handlers[entry.getName()] = entry;
@@ -75,11 +89,18 @@ export class A6sRailway {
 
     /**
      * Execute pipeline
-     * @returns {Promise<IRailwayMap>}
+     * @returns {Promise<A6sRailway>}
      */
-    async execute(): Promise<IRailwayMap> {
-        this.map.station = await this.a6sRailwayUtil.processStation(this.map.station, this.handlers, this.resolvers);
+    async execute(): Promise<A6sRailway> {
+        if (!this.map) {
+            this.map = await this.a6sRailwayUtil.readYamlFile(this.mapFile);
+            const ctx = this.a6sRailwayUtil.getSharedContext();
+            ctx.pwd = dirname(this.mapFile);
+        }
 
-        return this.map;
+        // execute
+        await this.a6sRailwayUtil.processStation(this.map.station, this.handlers, this.resolvers, this.parentsPath);
+
+        return this;
     }
 }

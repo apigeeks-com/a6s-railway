@@ -3,12 +3,13 @@ import {IHandlerReportRecord} from '../../lib/interfaces';
 import {IRailWayStation} from '../../lib/interfaces/core';
 
 export class MockProcessReporter extends ProcessReporter {
-    public setReport(
+    public registerHandler(
+        path: string[],
         station: IRailWayStation,
         report: IHandlerReportRecord,
         options: any,
     ) {
-        const handler = this.handlers.get(this.generateProcessId(station));
+        const handler = this.handlers.get(path);
 
         if (report.handler) {
             report.handler = report.handler.map(r => {
@@ -32,9 +33,13 @@ export class MockProcessReporter extends ProcessReporter {
             });
         }
 
-        if (handler) {
-            handler.report = report;
-            handler.options = options;
-        }
+        this.handlers.set(
+            path,
+            {
+                station,
+                report,
+                options,
+            }
+        );
     }
 }

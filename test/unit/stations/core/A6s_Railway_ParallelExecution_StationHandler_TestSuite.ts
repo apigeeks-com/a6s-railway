@@ -64,7 +64,7 @@ const assert = require('assert');
             st: new MockStationHandler(() => {
                 executed = true;
             }, 'st')
-        }, {});
+        }, {}, []);
 
         assert(executed);
     }
@@ -75,24 +75,29 @@ const assert = require('assert');
 
         let executed = false;
         await AssertHelper.shouldReject(async() => {
-            await station.run([
-                {name: 'st.fail'},
-                {name: 'st.pass'}
-            ], {
-                'st.fail': new MockStationHandler(() => {
-                    throw new Error('fail');
-                }, 'st.fail'),
-                'st.pass': new MockStationHandler(async () => {
-                    const promise = new Promise(resolve => {
-                        setTimeout(() => {
-                            executed = true;
-                            resolve();
-                        }, 100);
-                    });
+            await station.run(
+                [
+                    {name: 'st.fail'},
+                    {name: 'st.pass'},
+                ],
+                {
+                    'st.fail': new MockStationHandler(() => {
+                        throw new Error('fail');
+                    }, 'st.fail'),
+                    'st.pass': new MockStationHandler(async () => {
+                        const promise = new Promise(resolve => {
+                            setTimeout(() => {
+                                executed = true;
+                                resolve();
+                            }, 100);
+                        });
 
-                    await promise;
-                }, 'st.pass'),
-            }, {});
+                        await promise;
+                    }, 'st.pass'),
+                },
+                {},
+                []
+            );
         });
 
         assert(executed, 'should process second handler even first one failed');

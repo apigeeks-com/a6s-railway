@@ -18,7 +18,7 @@ export class ContextResolver extends BaseResolver {
         }
     }
 
-    async run(name: string, options: any, sharedContext: any, resolvers: {[name: string]: BaseResolver}): Promise<any> {
+    async run(name: string, options: any, sharedContext: any, resolvers: {[name: string]: BaseResolver}): Promise<void> {
         let obj = sharedContext;
         if (name.length) {
             obj = sharedContext[name];

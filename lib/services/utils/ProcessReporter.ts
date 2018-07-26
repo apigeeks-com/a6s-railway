@@ -2,44 +2,28 @@ import {IRailWayStation} from '../../interfaces/core';
 import {IReport, IHandlerReportRecord} from '../../interfaces';
 
 export class ProcessReporter {
-    protected handlers: Map<string, any> = new Map();
+    protected handlers: Map<string[], any> = new Map();
 
     /**
      * @param {string} path
      * @param {IRailWayStation} station
-     */
-    public registerHandler(path: string[], station: IRailWayStation) {
-        const id = this.generateProcessId(station);
-
-        if (this.handlers.get(id)) {
-            return;
-        }
-
-        this.handlers.set(
-            id,
-            {
-                path,
-                station,
-            }
-        );
-    }
-
-    /**
-     * @param {IRailWayStation} station
-     * @param {IHandlerReportRecord} report
+     * @param report
      * @param options
      */
-    public setReport(
+    public registerHandler(
+        path: string[],
         station: IRailWayStation,
         report: IHandlerReportRecord,
         options: any,
     ) {
-        const handler = this.handlers.get(this.generateProcessId(station));
-
-        if (handler) {
-            handler.report = report;
-            handler.options = options;
-        }
+        this.handlers.set(
+            path,
+            {
+                station,
+                report,
+                options,
+            }
+        );
     }
 
     /**
@@ -48,17 +32,17 @@ export class ProcessReporter {
      * @return {IReport}
      */
     public getReport(): IReport {
-        const handlers: any[] = [...this.handlers].sort(([, a]: any, [, b]: any) => {
-            return a.path.length - b.path.length;
+        const handlers: any[] = [...this.handlers].sort(([a]: any, [b]: any) => {
+            return a.length - b.length;
         });
 
         if (!handlers || !handlers.length) {
             return <IReport>{};
         }
 
-        const [, firstHandler] = handlers[0];
-        const processPath = firstHandler.path.length
-            ? firstHandler.path
+        const [parentPath, firstHandler] = handlers[0];
+        const processPath = parentPath.length
+            ? parentPath
             : [firstHandler.station.name]
         ;
 
@@ -71,22 +55,14 @@ export class ProcessReporter {
     }
 
     /**
-     * @param {IRailWayStation} station
-     * @return {string}
-     */
-    protected generateProcessId(station: IRailWayStation) {
-        return Buffer.from(JSON.stringify(station)).toString('base64');
-    }
-
-    /**
      * @param {string[]} parent
      * @param {any[]} handlers
      * @return {any[]}
      */
     protected buildTreeReport(parent: string[], handlers: any[]): any[] {
         return handlers
-            .filter(([, h]) => {
-                const processPath = h.path.length ? h.path : [h.station.name];
+            .filter(([p, h]) => {
+                const processPath = p.length ? p : [h.station.name];
 
                 // Checking the equivalence of arrays
                 return processPath.length - 1 === parent.length &&
@@ -94,8 +70,8 @@ export class ProcessReporter {
                 ;
 
             })
-            .map(([, h]) => {
-                const processPath = h.path.length ? h.path : [h.station.name];
+            .map(([p, h]) => {
+                const processPath = p.length ? p : [h.station.name];
 
                 return {
                     name: h.station.name,

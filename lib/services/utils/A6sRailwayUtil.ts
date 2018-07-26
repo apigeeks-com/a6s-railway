@@ -61,9 +61,16 @@ export class A6sRailwayUtil {
      * @param {IRailWayStation} s
      * @param {A6sRailwayStationHandlersRegistry} handlers
      * @param {A6sRailwayResolverRegistry} resolvers
+     * @param {IRailWayStation} parentsPath
      * @return {Promise<IRailWayStation>}
      */
-    async processStation(s: IRailWayStation, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<IRailWayStation> {
+    async processStation(
+        s: IRailWayStation,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        parentsPath: string[] = [],
+    ): Promise<IRailWayStation> {
+        const handlerPath = [...parentsPath, `${s.name}${this.handlerIndex++}`];
         const handler = handlers[s.name];
 
         const result = <IHandlerReportRecord>{
@@ -99,7 +106,7 @@ export class A6sRailwayUtil {
 
         if (shouldRun) {
             console.log(`-> Executing ${s.name}`);
-            const handlerResult = await handler.run(options, handlers, resolvers);
+            const handlerResult = await handler.run(options, handlers, resolvers, handlerPath);
 
             if (handlerResult) {
                 result.handler = handlerResult;
@@ -108,7 +115,7 @@ export class A6sRailwayUtil {
             console.log(`-> Execution skipped for ${s.name}`);
         }
 
-        this.processReporter.setReport(s, result, options);
+        this.processReporter.registerHandler(handlerPath, s, result, options);
 
         return s;
     }
@@ -212,45 +219,6 @@ export class A6sRailwayUtil {
     }
 
     /**
-     * Resolving file dependencies
-     *
-     * @param {IRailWayStation} station
-     * @param {string} pwd
-     * @param {string[]} graphPath
-     * @return {Promise<IRailWayStation>}
-     */
-    async resolveTree(station: IRailWayStation, pwd: string, graphPath: string[] = []) {
-        const name = `${station.name}_${this.generateUniqueId()}`;
-
-        if (!graphPath.length) {
-            graphPath.push(name);
-        }
-
-        if (station.name !== 'a6s.external') {
-            if (Array.isArray(station.options)) {
-                station.options = await Promise.all(
-                    station.options.map(async (option: any) => {
-                        const childName = `${option.name}_${this.generateUniqueId()}`;
-
-                        return await this.resolveTree(option, pwd, [...graphPath, childName]);
-                    })
-                );
-            }
-        } else {
-            const file = join(pwd, station.options.file);
-            const fileContent = await this.readYamlFile(file);
-
-            station.options = {
-                station: await this.resolveTree(fileContent.station, dirname(file), [...graphPath, name])
-            };
-        }
-
-        this.processReporter.registerHandler(graphPath, station);
-
-        return station;
-    }
-
-    /**
      * Resolve options for station handler
      *
      * @param {IRailWayStation} station
@@ -271,14 +239,5 @@ export class A6sRailwayUtil {
         }
 
         return options;
-    }
-
-    /**
-     * Generate unique id
-     *
-     * @return {string}
-     */
-    private generateUniqueId() {
-        return this.handlerIndex++;
     }
 }

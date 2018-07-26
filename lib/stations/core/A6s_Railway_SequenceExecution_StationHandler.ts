@@ -30,9 +30,14 @@ export class A6s_Railway_SequenceExecution_StationHandler extends BaseStationHan
         return false;
     }
 
-    async run(options: any, handlers: A6sRailwayStationHandlersRegistry, resolvers: A6sRailwayResolverRegistry): Promise<void> {
+    async run(
+        options: any,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        parentsPath: string[]
+    ): Promise<void> {
         for (const s of options) {
-            await this.a6sRailwayUtil.processStation(s, handlers, resolvers);
+            await this.a6sRailwayUtil.processStation(s, handlers, resolvers, parentsPath);
         }
     }
 }
