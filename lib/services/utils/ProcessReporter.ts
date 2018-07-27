@@ -14,14 +14,14 @@ export class ProcessReporter {
         path: string[],
         station: IRailWayStation,
         report: IHandlerReportRecord,
-        options: any,
+        options?: any,
     ) {
         this.handlers.set(
             path,
             {
                 station,
                 report,
-                options,
+                options: options,
             }
         );
     }

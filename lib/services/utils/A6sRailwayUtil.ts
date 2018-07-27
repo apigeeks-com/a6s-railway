@@ -8,8 +8,8 @@ import {BaseStationHandler, BaseResolver} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import {ProcessReporter} from './';
 import {IOC} from '../';
-import {IHandlerReportRecord, IReportRecord, IReportRecordType} from '../../interfaces';
-import {ProcessException, ParallelProcessingException} from '../../exception';
+import {IHandlerReportRecord} from '../../interfaces';
+import {ParallelProcessingException, ProcessException, ProcessExceptionType} from '../../exception';
 
 const ejsLint = require('ejs-lint');
 
@@ -64,7 +64,7 @@ export class A6sRailwayUtil {
      * @param {IRailWayStation} s
      * @param {A6sRailwayStationHandlersRegistry} handlers
      * @param {A6sRailwayResolverRegistry} resolvers
-     * @param {IRailWayStation} parentsPath
+     * @param {string[]} parentsPath
      * @return {Promise<IRailWayStation>}
      */
     async processStation(
@@ -74,90 +74,43 @@ export class A6sRailwayUtil {
         parentsPath: string[] = [],
     ): Promise<IRailWayStation> {
         const handlerPath = [...parentsPath, `${s.name}${this.handlerIndex++}`];
-        const handler = handlers[s.name];
 
-        const result = <IHandlerReportRecord>{
-            resolvers: [],
-            handler: null,
-        };
+        try {
+            return await this._processStation(s, handlers, resolvers, handlerPath);
+        } catch (e) {
+            let exceptions = [];
 
-        if (!handler) {
-            throw new Error(`Unable to execute deployment. Plugin "${s.name}" is not registered`);
-        }
-
-        if (s.resolvers) {
-            for (const name in s.resolvers) {
-                const config: IRailWayResolver = s.resolvers[name];
-                const resolver = resolvers[config.name];
-
-                if (!resolver) {
-                    throw new Error(`Unable to execute deployment. Resolver "${config.name}" is not registered`);
-                }
-
-                const _options = await this.resolveOptionsForResolver(config, resolver);
-                const resolverResult = await resolver.run(name, _options, this.getSharedContext(), resolvers);
-
-                if (resolverResult) {
-                    result.resolvers.push(resolverResult);
-                }
+            if (e instanceof ParallelProcessingException) {
+                exceptions = e.getExceptions();
+            } else {
+                exceptions = [e];
             }
-        }
 
-        console.log(`-> Checking if should run ${s.name}`);
-        const options = await this.resolveOptionsForStationHandler(s, handler);
-        const shouldRun = await handler.isShouldRun(options, handlers, resolvers);
+            const errors = exceptions
+                .map((exception: Error) => {
+                    if (exception instanceof ProcessException) {
+                        return {
+                            exception: exception.message,
+                            type: exception.type,
+                            payload: exception.payload,
+                        };
+                    }
 
-        if (shouldRun) {
-            console.log(`-> Executing ${s.name}`);
-            try {
-                const handlerResult = await handler.run(options, handlers, resolvers, handlerPath);
+                    return undefined;
+                })
+                .filter(exception => !!exception)
+            ;
 
-                if (handlerResult) {
-                    result.handler = handlerResult;
+            this.processReporter.registerHandler(
+                handlerPath,
+                s,
+                {
+                    error: errors.length ? errors : undefined,
                 }
-            } catch (e) {
-                let exceptions = [];
+            );
 
-                if (e instanceof ParallelProcessingException) {
-                    exceptions = e.getExceptions();
-                } else {
-                    exceptions = [e];
-                }
-
-                this.processReporter.registerHandler(
-                    handlerPath,
-                    s,
-                    {
-                        ...result,
-                        handler: exceptions
-                            .map((exception: Error): IReportRecord => {
-                                if (exception instanceof ProcessException) {
-                                    return {
-                                        type: IReportRecordType.CMD,
-                                        payload: {
-                                            exception: exception.message,
-                                            type: exception.type,
-                                            payload: exception.payload,
-                                        }
-                                    };
-                                }
-
-                                return undefined;
-                            })
-                            .filter(exception => !!exception)
-                    },
-                    options
-                );
-
-                throw new Error(e.message);
-            }
-        } else {
-            console.log(`-> Execution skipped for ${s.name}`);
+            throw new Error(e.message);
         }
-
-        this.processReporter.registerHandler(handlerPath, s, result, options);
-
-        return s;
     }
 
     /**
@@ -226,13 +179,20 @@ export class A6sRailwayUtil {
         if (options) {
             let yaml = jsyaml.dump(options);
 
-            // validate template
-            ejsLint(yaml);
+            try {
+                // validate template
+                ejsLint(yaml);
 
-            yaml = render(yaml, {
-                env: process.env,
-                context: this.getSharedContext()
-            });
+                yaml = render(yaml, {
+                    env: process.env,
+                    context: this.getSharedContext()
+                });
+            } catch (e) {
+                throw new ProcessException(
+                    e.message,
+                    ProcessExceptionType.TEMPLATE_ERROR,
+                );
+            }
 
             options = jsyaml.safeLoad(yaml);
         }
@@ -251,11 +211,13 @@ export class A6sRailwayUtil {
         let options = await this._resolveOptions(config);
         options = this._processOptionsTemplate(options);
 
-
         try {
             await resolver.validate(options);
         } catch (e) {
-            throw new Error(`Resolver "${resolver.getName()}" failed validation:\n${e.message}`);
+            throw new ProcessException(
+                `Resolver "${resolver.getName()}" failed validation:\n${e.message}`,
+                ProcessExceptionType.VALIDATION_ERROR,
+            );
         }
 
         return options;
@@ -278,9 +240,76 @@ export class A6sRailwayUtil {
         try {
             await handler.validate(options);
         } catch (e) {
-            throw new Error(`Station Handler "${handler.getName()}" failed validation:\n${e.message}`);
+            throw new ProcessException(
+                `Station Handler "${handler.getName()}" failed validation:\n${e.message}`,
+                ProcessExceptionType.VALIDATION_ERROR,
+            );
         }
 
         return options;
+    }
+
+    /**
+     * Processed Station
+     *
+     * @param {IRailWayStation} s
+     * @param {A6sRailwayStationHandlersRegistry} handlers
+     * @param {A6sRailwayResolverRegistry} resolvers
+     * @param {string[]} handlerPath
+     * @return {Promise<IRailWayStation>}
+     */
+    private async _processStation(
+        s: IRailWayStation,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        handlerPath: string[] = [],
+    ): Promise<IRailWayStation> {
+        const handler = handlers[s.name];
+
+        const result = <IHandlerReportRecord>{
+            resolvers: [],
+            handler: null,
+        };
+
+        if (!handler) {
+            throw new Error(`Unable to execute deployment. Plugin "${s.name}" is not registered`);
+        }
+
+        if (s.resolvers) {
+            for (const name in s.resolvers) {
+                const config: IRailWayResolver = s.resolvers[name];
+                const resolver = resolvers[config.name];
+
+                if (!resolver) {
+                    throw new Error(`Unable to execute deployment. Resolver "${config.name}" is not registered`);
+                }
+
+                const _options = await this.resolveOptionsForResolver(config, resolver);
+                const resolverResult = await resolver.run(name, _options, this.getSharedContext(), resolvers);
+
+                if (resolverResult) {
+                    result.resolvers.push(resolverResult);
+                }
+            }
+        }
+
+        console.log(`-> Checking if should run ${s.name}`);
+        const options = await this.resolveOptionsForStationHandler(s, handler);
+        const shouldRun = await handler.isShouldRun(options, handlers, resolvers);
+
+        if (shouldRun) {
+            console.log(`-> Executing ${s.name}`);
+            const handlerResult = await handler.run(options, handlers, resolvers, handlerPath);
+
+            if (handlerResult) {
+                result.handler = handlerResult;
+            }
+        } else {
+            console.log(`-> Execution skipped for ${s.name}`);
+        }
+
+        this.processReporter.registerHandler(handlerPath, s, result, options);
+
+        return s;
     }
 }
