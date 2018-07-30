@@ -1,34 +1,6 @@
 {
    "name": "a6s.sequence",
-   "options": [
-      {
-         "name": "a6s.external",
-         "options": {
-            "file": "../success_sample/shared.yml"
-         }
-      },
-      {
-         "name": "a6s.parallel",
-         "options": [
-            {
-               "name": "a6s.external",
-               "options": {
-                  "file": "../success_sample/service2.yml"
-               }
-            },
-            {
-               "name": "a6s.external",
-               "options": {
-                  "file": "./service3.yml"
-               }
-            }
-         ]
-      }
-   ],
-   "report": {
-      "resolvers": [],
-      "handler": []
-   },
+   "report": {},
    "children": [
       {
          "name": "a6s.external",
@@ -123,35 +95,43 @@
       },
       {
          "name": "a6s.parallel",
-         "options": [
-            {
-               "name": "a6s.external",
-               "options": {
-                  "file": "../success_sample/service2.yml"
-               }
-            },
-            {
-               "name": "a6s.external",
-               "options": {
-                  "file": "./service3.yml"
-               }
-            }
-         ],
-         "report": {
-            "resolvers": [],
-            "handler": []
-         },
+         "report": {},
          "children": [
             {
                "name": "a6s.external",
-               "options": {
-                  "file": "./service3.yml"
-               },
                "report": {
-                  "resolvers": [],
-                  "handler": []
+                  "error": [
+                     {
+                        "exception": "ENOENT: no such file or directory, open '/Users/igor/projects/a6s-railway/test/resources/failed_deploy/service4.yml'",
+                        "type": "not_fount"
+                     }
+                  ]
                },
                "children": []
+            },
+            {
+               "name": "a6s.external",
+               "report": {},
+               "children": [
+                  {
+                     "name": "a6s.sequence",
+                     "report": {},
+                     "children": [
+                        {
+                           "name": "k8s.helm.install",
+                           "report": {
+                              "error": [
+                                 {
+                                    "exception": "Station Handler \"k8s.helm.install\" failed validation:\n\"chart\" is required",
+                                    "type": "validation"
+                                 }
+                              ]
+                           },
+                           "children": []
+                        }
+                     ]
+                  }
+               ]
             },
             {
                "name": "a6s.external",

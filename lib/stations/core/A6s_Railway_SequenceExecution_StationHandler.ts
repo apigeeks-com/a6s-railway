@@ -1,4 +1,4 @@
-import {BaseStationHandler} from '../../models';
+import {BaseStationHandler, StationContext} from '../../models';
 import {A6sRailwayUtil} from '../../services/utils';
 import {IOC} from '../../services';
 import {IRailWayStation_JOI_SCHEMA} from '../../interfaces/core';
@@ -34,10 +34,15 @@ export class A6s_Railway_SequenceExecution_StationHandler extends BaseStationHan
         options: any,
         handlers: A6sRailwayStationHandlersRegistry,
         resolvers: A6sRailwayResolverRegistry,
-        parentsPath: string[]
+        stationContext: StationContext,
     ): Promise<void> {
         for (const s of options) {
-            await this.a6sRailwayUtil.processStation(s, handlers, resolvers, parentsPath);
+            await this.a6sRailwayUtil.processStation(
+                s,
+                handlers,
+                resolvers,
+                stationContext.clone()
+            );
         }
     }
 }

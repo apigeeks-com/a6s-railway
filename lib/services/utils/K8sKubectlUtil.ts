@@ -3,7 +3,7 @@ import * as jsyaml from 'js-yaml';
 import {ChildProcessUtil, A6sRailwayUtil} from './';
 import {IOC} from '../IOC';
 import {createHash} from 'crypto';
-import {ProcessException, ProcessExceptionType} from '../../exception';
+import {StationException, ProcessExceptionType} from '../../exception';
 
 const tmp = require('tmp-promise');
 const fs = require('fs');
@@ -53,9 +53,9 @@ export class K8sKubectlUtil {
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new ProcessException(
+            throw new StationException(
                 `Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`,
-                ProcessExceptionType.CMD_ERROR,
+                ProcessExceptionType.CMD,
                 {cmd, ... <IProcessResult>result}
             );
         }
@@ -83,9 +83,9 @@ export class K8sKubectlUtil {
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new ProcessException(
+            throw new StationException(
                 `Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`,
-                ProcessExceptionType.CMD_ERROR,
+                ProcessExceptionType.CMD,
                 {cmd, ... <IProcessResult>result}
             );
         }

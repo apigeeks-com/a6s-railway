@@ -1,8 +1,9 @@
 import {IRailwayMap} from './interfaces';
-import {BaseResolver, BaseStationHandler} from './models';
+import {BaseResolver, BaseStationHandler, StationContext} from './models';
 import {A6sRailwayUtil} from './services/utils';
 import {IOC} from './services';
 import {dirname} from 'path';
+import {StationException, ProcessExceptionType} from './exception';
 
 export type A6sRailwayStationHandlersRegistry = {[name: string]: BaseStationHandler};
 export type A6sRailwayResolverRegistry = {[name: string]: BaseResolver};
@@ -14,13 +15,11 @@ export class A6sRailway {
 
     private map: IRailwayMap;
     private mapFile: string;
-    private parentsPath: string[] = [];
-
     private a6sRailwayUtil: A6sRailwayUtil;
 
     constructor(
         map: IRailwayMap | string,
-        parentsPath?: string[],
+        private stationContext?: StationContext,
     ) {
         if (typeof map === 'string') {
             this.mapFile = map;
@@ -28,8 +27,8 @@ export class A6sRailway {
             this.map = map;
         }
 
-        if (parentsPath) {
-            this.parentsPath = parentsPath;
+        if (!this.stationContext) {
+            this.stationContext = new StationContext();
         }
 
         this.handlers = {};
@@ -92,14 +91,26 @@ export class A6sRailway {
      * @returns {Promise<A6sRailway>}
      */
     async execute(): Promise<A6sRailway> {
+        let workingDirectory = this.stationContext.getWorkingDirectory();
+
         if (!this.map) {
-            this.map = await this.a6sRailwayUtil.readYamlFile(this.mapFile);
-            const ctx = this.a6sRailwayUtil.getSharedContext();
-            ctx.pwd = dirname(this.mapFile);
+            try {
+                this.map = await this.a6sRailwayUtil.readYamlFile(
+                    this.a6sRailwayUtil.getAbsolutePath(this.mapFile, workingDirectory)
+                );
+                workingDirectory = this.a6sRailwayUtil.getAbsolutePath(dirname(this.mapFile));
+            } catch (e) {
+                throw new StationException(e.message, ProcessExceptionType.NOT_FOUND);
+            }
         }
 
         // execute
-        await this.a6sRailwayUtil.processStation(this.map.station, this.handlers, this.resolvers, this.parentsPath);
+        await this.a6sRailwayUtil.processStation(
+            this.map.station,
+            this.handlers,
+            this.resolvers,
+            new StationContext(this.stationContext.getParentsPath(), workingDirectory)
+        );
 
         return this;
     }

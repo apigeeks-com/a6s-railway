@@ -2,6 +2,7 @@ import { suite, test } from 'mocha-typescript';
 import {A6s_Railway_Switch_StationHandler} from '../../../../lib/stations';
 import {AssertHelper} from '../../../helpers/AssertHelper';
 import {MockStationHandler} from '../../../helpers/MockStationHandler';
+import {StationContext} from '../../../../lib/models';
 
 const assert = require('assert');
 
@@ -89,7 +90,7 @@ const assert = require('assert');
             st: new MockStationHandler(() => {
                 executed = true;
             }, 'st')
-        }, {}, []);
+        }, {}, new StationContext());
 
         assert(executed);
     }
@@ -109,7 +110,7 @@ const assert = require('assert');
             st: new MockStationHandler(() => {
                 executed = true;
             })
-        }, {}, []);
+        }, {}, new StationContext());
 
         assert(!executed);
     }

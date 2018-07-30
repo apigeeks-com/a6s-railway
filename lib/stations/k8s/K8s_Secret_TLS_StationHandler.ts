@@ -1,10 +1,11 @@
 import * as Joi from 'joi';
 import * as fs from 'fs';
 import {IK8sObject, IReportRecord} from '../../interfaces';
-import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
+import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import {IOC} from '../../services';
 import {A6sRailwayUtil} from '../../services/utils';
 import {K8s_Kubectl_ApplyObject_StationHandler} from './K8s_Kubectl_ApplyObject_StationHandler';
+import {StationContext} from '../../models';
 
 export class K8s_Secret_TLS_StationHandler extends K8s_Kubectl_ApplyObject_StationHandler {
     /**
@@ -48,10 +49,17 @@ export class K8s_Secret_TLS_StationHandler extends K8s_Kubectl_ApplyObject_Stati
 
     /**
      * @param options
-     * @param {A6sRailwayStationHandlersRegistry} plugins
-     * @return {Promise<IReportRecord[]>}
+     * @param {A6sRailwayStationHandlersRegistry} handlers
+     * @param {A6sRailwayResolverRegistry} resolvers
+     * @param {StationContext} stationContext
+     * @return {Promise<void>}
      */
-    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
+    async run(
+        options: any,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        stationContext: StationContext
+    ): Promise<IReportRecord[]> {
         const object: IK8sObject = {
             apiVersion: 'v1',
             kind: 'Secret',
@@ -70,19 +78,20 @@ export class K8s_Secret_TLS_StationHandler extends K8s_Kubectl_ApplyObject_Stati
             tls: {},
         };
 
-        object.data.tls.crt = await this.loadFile(options.cert);
-        object.data.tls.key = await this.loadFile(options.key);
+        object.data.tls.crt = await this.loadFile(options.cert, stationContext.getWorkingDirectory());
+        object.data.tls.key = await this.loadFile(options.key, stationContext.getWorkingDirectory());
 
-        return await super.run(object, plugins);
+        return await super.run(object, handlers, resolvers, stationContext);
     }
 
     /**
      * @param {string} filePath
+     * @param {string} workingDirectory
      * @return {Promise<any>}
      */
-    protected async loadFile(filePath: string): Promise<any> {
+    protected async loadFile(filePath: string, workingDirectory: string): Promise<any> {
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
-        filePath = a6sRailwayUtil.getAbsolutePath(filePath);
+        filePath = a6sRailwayUtil.getAbsolutePath(filePath, workingDirectory);
 
         return new Promise((resolve, reject) => {
             fs.readFile(filePath, (err, fileData) => {

@@ -1,4 +1,4 @@
-import {BaseStationHandler} from '../../models';
+import {BaseStationHandler, StationContext} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import * as Joi from 'joi';
 import {A6sRailwayUtil} from '../../services/utils';
@@ -38,11 +38,16 @@ export class A6s_Railway_Switch_StationHandler extends BaseStationHandler {
         options: any,
         handlers: A6sRailwayStationHandlersRegistry,
         resolvers: A6sRailwayResolverRegistry,
-        parentsPath: string[]
+        stationContext: StationContext,
     ): Promise<void> {
         const option = options.switch[options.value];
         if (option) {
-            await this.a6sRailwayUtil.processStation(option, handlers, resolvers, parentsPath);
+            await this.a6sRailwayUtil.processStation(
+                option,
+                handlers,
+                resolvers,
+                stationContext.clone()
+            );
         }
     }
 }

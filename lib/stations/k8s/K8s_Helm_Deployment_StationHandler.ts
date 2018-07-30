@@ -1,10 +1,10 @@
-import {BaseStationHandler} from '../../models';
+import {BaseStationHandler, StationContext} from '../../models';
 import {IHelmChartInstall, IReportRecord, IReportRecordType} from '../../interfaces';
 import {K8sHelmUtil} from '../../services/utils';
 import {IOC} from '../../services';
 import * as Joi from 'joi';
 import {IHelmChartInstall_JOI_SCHEMA} from '../../interfaces/k8s';
-import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
+import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 
 export class K8s_Helm_Deployment_StationHandler extends BaseStationHandler {
     /**
@@ -36,12 +36,22 @@ export class K8s_Helm_Deployment_StationHandler extends BaseStationHandler {
     /**
      * @param options
      * @param {A6sRailwayStationHandlersRegistry} handlers
-     * @return {Promise<IReportRecord[]>}
+     * @param {A6sRailwayResolverRegistry} resolvers
+     * @param {StationContext} stationContext
+     * @return {Promise<void>}
      */
-    async run(options: any, handlers: A6sRailwayStationHandlersRegistry): Promise<IReportRecord[]> {
+    async run(
+        options: any,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        stationContext: StationContext
+    ): Promise<IReportRecord[]> {
         return [<IReportRecord>{
             type: IReportRecordType.CMD,
-            payload: await this.k8sHelmUtil.updateOrInstall(options as IHelmChartInstall),
+            payload: await this.k8sHelmUtil.updateOrInstall(
+                options as IHelmChartInstall,
+                stationContext.getWorkingDirectory()
+            ),
         }];
     }
 }
