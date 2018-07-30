@@ -1,4 +1,4 @@
-import {BaseStationHandler} from '../../models';
+import {BaseStationHandler, StationContext} from '../../models';
 import {A6sRailway, A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import * as Joi from 'joi';
 import {resolve} from 'path';
@@ -19,7 +19,7 @@ export class A6s_Railway_ExternalFile_StationHandler extends BaseStationHandler 
     async validate(options: any): Promise<void> {
         const result = Joi.validate(options, A6s_Railway_ExternalFile_StationHandler.OPTIONS_SCHEMA);
         if (result.error) {
-            throw new Error(result.error.details.map(d => d.message).join('\n'));
+            throw new Error(result.error.details.map((d: any) => d.message).join('\n'));
         }
     }
 
@@ -27,12 +27,15 @@ export class A6s_Railway_ExternalFile_StationHandler extends BaseStationHandler 
         options: any,
         handlers: A6sRailwayStationHandlersRegistry,
         resolvers: A6sRailwayResolverRegistry,
-        parentsPath: string[]
+        stationContext: StationContext,
     ): Promise<void> {
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
-        const file = a6sRailwayUtil.getAbsolutePath(options.file);
+        const file = a6sRailwayUtil.getAbsolutePath(options.file, stationContext.getWorkingDirectory());
 
-        await new A6sRailway(resolve(file), parentsPath)
+        await new A6sRailway(
+            resolve(file),
+            stationContext.clone()
+        )
             .setHandlers(handlers)
             .setResolvers(resolvers)
             .execute();

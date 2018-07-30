@@ -29,7 +29,7 @@ export class K8sHelmUtil {
         if (result.code !== 0) {
             throw new ProcessException(
                 result.stderr,
-                ProcessExceptionType.CMD_ERROR,
+                ProcessExceptionType.CMD,
                 {cmd, ... <IProcessResult>result}
             );
         }
@@ -45,9 +45,10 @@ export class K8sHelmUtil {
     /**
      * Update or install helm chart
      * @param {IHelmChartInstall} config
+     * @param {string} workingDirectory
      * @return {Promise<void>}
      */
-    async updateOrInstall(config: IHelmChartInstall): Promise<IProcessResult> {
+    async updateOrInstall(config: IHelmChartInstall, workingDirectory: string): Promise<IProcessResult> {
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
 
         const cmd = [
@@ -68,7 +69,7 @@ export class K8sHelmUtil {
 
         // tslint:disable-next-line
         config.variable_files && config.variable_files.forEach(f => {
-            cmd.push('-f ' + a6sRailwayUtil.getAbsolutePath(f));
+            cmd.push('-f ' + a6sRailwayUtil.getAbsolutePath(f, workingDirectory));
         });
 
         if (config.variables) {
@@ -78,14 +79,14 @@ export class K8sHelmUtil {
         }
 
         cmd.push(config.name);
-        cmd.push(a6sRailwayUtil.getAbsolutePath(config.chart));
+        cmd.push(a6sRailwayUtil.getAbsolutePath(config.chart, workingDirectory));
 
         const result = await this.childProcessUtil.exec(cmd.join(' '));
 
         if (result.code !== 0) {
             throw new ProcessException(
                 result.stderr,
-                ProcessExceptionType.CMD_ERROR,
+                ProcessExceptionType.CMD,
                 {cmd, ... <IProcessResult>result}
             );
         }

@@ -3,6 +3,7 @@ import {A6s_Railway_ExternalFile_StationHandler} from '../../../../lib/stations'
 import {AssertHelper} from '../../../helpers/AssertHelper';
 import {MockStationHandler} from '../../../helpers/MockStationHandler';
 import {writeFileSync} from 'fs';
+import {StationContext} from '../../../../lib/models';
 
 const assert = require('assert');
 const tmp = require('tmp-promise');
@@ -51,7 +52,7 @@ const tmp = require('tmp-promise');
                 },
                 {},
                 {},
-                []);
+                new StationContext());
         });
     }
 
@@ -79,7 +80,7 @@ const tmp = require('tmp-promise');
                 }, 'st')
             },
             {},
-            []
+            new StationContext()
         );
 
         assert(executed);

@@ -1,7 +1,8 @@
 export enum ProcessExceptionType {
-    CMD_ERROR = 'cmd_error',
-    VALIDATION_ERROR = 'validation_error',
-    TEMPLATE_ERROR = 'template_error',
+    CMD = 'cmd',
+    VALIDATION = 'validation',
+    TEMPLATE = 'template',
+    NOT_FOUNT = 'not_fount',
 }
 
 export class ProcessException extends Error {

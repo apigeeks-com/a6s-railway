@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import * as util from 'util';
-import {A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
-import {BaseStationHandler} from '../../models';
+import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
+import {BaseStationHandler, StationContext} from '../../models';
 import {IOC} from '../../services';
 import {A6sRailwayUtil} from '../../services/utils';
 
@@ -46,10 +46,17 @@ export class Write_File_StationHandler extends BaseStationHandler {
 
     /**
      * @param options
-     * @param {A6sRailwayStationHandlersRegistry} plugins
+     * @param {A6sRailwayStationHandlersRegistry} handlers
+     * @param {A6sRailwayResolverRegistry} resolvers
+     * @param {StationContext} stationContext
      * @return {Promise<void>}
      */
-    async run(options: any, plugins: A6sRailwayStationHandlersRegistry): Promise<void> {
+    async run(
+        options: any,
+        handlers: A6sRailwayStationHandlersRegistry,
+        resolvers: A6sRailwayResolverRegistry,
+        stationContext: StationContext,
+    ): Promise<void> {
         const baseDir = path.dirname(options.path);
 
         if (!fs.existsSync(baseDir)) {
@@ -57,7 +64,7 @@ export class Write_File_StationHandler extends BaseStationHandler {
         }
 
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
-        const file = a6sRailwayUtil.getAbsolutePath(options.path);
+        const file = a6sRailwayUtil.getAbsolutePath(options.path, stationContext.getWorkingDirectory());
 
         await util.promisify(fs.writeFile)(file, options.content);
     }

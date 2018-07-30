@@ -17,7 +17,7 @@ const assert = require('assert');
             version: '1.0.0',
             cleanupStrategy: 'none',
             station: {
-                name: 'k8s.file.write',
+                name: 'a6s.file.write',
                 options: {
                     path: filePath,
                     content: JSON.stringify(content),

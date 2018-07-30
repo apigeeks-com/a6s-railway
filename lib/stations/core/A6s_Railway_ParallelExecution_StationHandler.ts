@@ -1,4 +1,4 @@
-import {BaseStationHandler} from '../../models';
+import {BaseStationHandler, StationContext} from '../../models';
 import {IRailWayStation} from '../../interfaces';
 import {A6sRailwayUtil} from '../../services/utils';
 import {IOC} from '../../services';
@@ -36,12 +36,17 @@ export class A6s_Railway_ParallelExecution_StationHandler extends BaseStationHan
         options: any,
         handlers: A6sRailwayStationHandlersRegistry,
         resolvers: A6sRailwayResolverRegistry,
-        parentsPath: string[]
+        stationContext: StationContext,
     ): Promise<void> {
         const parallelException = new ParallelProcessingException(options.length);
         const promises = options.map(async (s: IRailWayStation): Promise<void> => {
             try {
-                await this.a6sRailwayUtil.processStation(s, handlers, resolvers, parentsPath);
+                await this.a6sRailwayUtil.processStation(
+                    s,
+                    handlers,
+                    resolvers,
+                    stationContext.clone()
+                );
             } catch (e) {
                 parallelException.addException(e);
             }

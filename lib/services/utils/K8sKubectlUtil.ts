@@ -55,7 +55,7 @@ export class K8sKubectlUtil {
         if (result.code !== 0) {
             throw new ProcessException(
                 `Unable to create K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`,
-                ProcessExceptionType.CMD_ERROR,
+                ProcessExceptionType.CMD,
                 {cmd, ... <IProcessResult>result}
             );
         }
@@ -85,7 +85,7 @@ export class K8sKubectlUtil {
         if (result.code !== 0) {
             throw new ProcessException(
                 `Unable to apply K8s object with name: ${k8sObject.metadata.name} and kind: ${k8sObject.kind} Error: ${result.stderr}`,
-                ProcessExceptionType.CMD_ERROR,
+                ProcessExceptionType.CMD,
                 {cmd, ... <IProcessResult>result}
             );
         }
