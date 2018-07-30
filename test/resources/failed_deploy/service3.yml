@@ -5,13 +5,13 @@ station:
   options:
     - name: k8s.helm.install
       options:
-        foo: path_to_mongodb_chart
-        name: mongodb
+        foo: failed_chart
+        name: failed
         variables:
           service:
             type: NodePort
           image:
-            repository: mongodb_image
+            repository: failed_image
             tag: 0.0.1
             pullSecrets:
               - docker-credentials

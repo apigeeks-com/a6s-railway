@@ -14,3 +14,6 @@ station:
         - name: a6s.external
           options:
             file: ./service3.yml
+        - name: a6s.external
+          options:
+            file: ./service4.yml
