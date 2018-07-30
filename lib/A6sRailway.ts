@@ -98,7 +98,7 @@ export class A6sRailway {
                 this.map = await this.a6sRailwayUtil.readYamlFile(
                     this.a6sRailwayUtil.getAbsolutePath(this.mapFile, workingDirectory)
                 );
-                workingDirectory = dirname(this.mapFile);
+                workingDirectory = this.a6sRailwayUtil.getAbsolutePath(dirname(this.mapFile));
             } catch (e) {
                 throw new StationException(e.message, ProcessExceptionType.NOT_FOUND);
             }
