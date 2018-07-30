@@ -1,6 +1,6 @@
 import {IReportRecord} from './IReportRecord';
 
-export interface IHandlerReportRecord {
+export interface IHandlerReport {
     error?: any;
     resolvers?: Array<IReportRecord[]>;
     handler?: IReportRecord[];

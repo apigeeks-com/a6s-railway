@@ -3,4 +3,4 @@ export * from './k8s';
 export * from './IProcessResult';
 export * from './IReportRecord';
 export * from './IReport';
-export * from './IHandlerReportRecord';
+export * from './IHandlerReport';

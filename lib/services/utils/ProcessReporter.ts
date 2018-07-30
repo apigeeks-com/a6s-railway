@@ -1,5 +1,5 @@
 import {IRailWayStation} from '../../interfaces/core';
-import {IReport, IHandlerReportRecord} from '../../interfaces';
+import {IReport, IHandlerReport} from '../../interfaces';
 
 export class ProcessReporter {
     protected handlers: Map<string[], any> = new Map();
@@ -13,7 +13,7 @@ export class ProcessReporter {
     public registerHandler(
         path: string[],
         station: IRailWayStation,
-        report: IHandlerReportRecord,
+        report: IHandlerReport,
         options?: any,
     ) {
         this.handlers.set(
@@ -21,7 +21,7 @@ export class ProcessReporter {
             {
                 station,
                 report,
-                options: options,
+                options,
             }
         );
     }

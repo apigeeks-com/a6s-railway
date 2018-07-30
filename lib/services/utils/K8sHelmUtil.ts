@@ -3,7 +3,7 @@ import * as yaml from 'js-yaml';
 import {ChildProcessUtil} from './ChildProcessUtil';
 import {IOC} from '../IOC';
 import {A6sRailwayUtil} from './A6sRailwayUtil';
-import {ProcessException, ProcessExceptionType} from '../../exception';
+import {StationException, ProcessExceptionType} from '../../exception';
 
 const tmp = require('tmp-promise');
 const fs = require('fs');
@@ -27,7 +27,7 @@ export class K8sHelmUtil {
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
-            throw new ProcessException(
+            throw new StationException(
                 result.stderr,
                 ProcessExceptionType.CMD,
                 {cmd, ... <IProcessResult>result}
@@ -84,7 +84,7 @@ export class K8sHelmUtil {
         const result = await this.childProcessUtil.exec(cmd.join(' '));
 
         if (result.code !== 0) {
-            throw new ProcessException(
+            throw new StationException(
                 result.stderr,
                 ProcessExceptionType.CMD,
                 {cmd, ... <IProcessResult>result}

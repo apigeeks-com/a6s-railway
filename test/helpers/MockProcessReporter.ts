@@ -1,12 +1,12 @@
 import {ProcessReporter} from '../../lib/services/utils';
-import {IHandlerReportRecord} from '../../lib/interfaces';
+import {IHandlerReport} from '../../lib/interfaces';
 import {IRailWayStation} from '../../lib/interfaces/core';
 
 export class MockProcessReporter extends ProcessReporter {
     public registerHandler(
         path: string[],
         station: IRailWayStation,
-        report: IHandlerReportRecord,
+        report: IHandlerReport,
         options: any,
     ) {
         if (report.handler) {

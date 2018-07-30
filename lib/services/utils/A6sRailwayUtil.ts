@@ -8,8 +8,8 @@ import {BaseStationHandler, BaseResolver, StationContext} from '../../models';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
 import {ProcessReporter} from './';
 import {IOC} from '../';
-import {IHandlerReportRecord} from '../../interfaces';
-import {ParallelProcessingException, ProcessException, ProcessExceptionType} from '../../exception';
+import {IHandlerReport} from '../../interfaces';
+import {ParallelProcessingException, StationException, ProcessExceptionType} from '../../exception';
 
 const ejsLint = require('ejs-lint');
 
@@ -74,7 +74,7 @@ export class A6sRailwayUtil {
         resolvers: A6sRailwayResolverRegistry,
         stationContext: StationContext,
     ): Promise<IRailWayStation> {
-        stationContext.setParentsPath([...stationContext.getParentsPath(), `${s.name}${this.handlerIndex++}`]);
+        stationContext.addParent(`${s.name}${this.handlerIndex++}`);
 
         try {
             return await this._processStation(s, handlers, resolvers, stationContext);
@@ -89,7 +89,7 @@ export class A6sRailwayUtil {
 
             const errors = exceptions
                 .map((exception: Error) => {
-                    if (exception instanceof ProcessException) {
+                    if (exception instanceof StationException) {
                         return {
                             exception: exception.message,
                             type: exception.type,
@@ -192,7 +192,7 @@ export class A6sRailwayUtil {
                     context: this.getSharedContext()
                 });
             } catch (e) {
-                throw new ProcessException(
+                throw new StationException(
                     e.message,
                     ProcessExceptionType.TEMPLATE,
                 );
@@ -223,7 +223,7 @@ export class A6sRailwayUtil {
         try {
             await resolver.validate(options);
         } catch (e) {
-            throw new ProcessException(
+            throw new StationException(
                 `Resolver "${resolver.getName()}" failed validation:\n${e.message}`,
                 ProcessExceptionType.VALIDATION,
             );
@@ -254,7 +254,7 @@ export class A6sRailwayUtil {
         try {
             await handler.validate(options);
         } catch (e) {
-            throw new ProcessException(
+            throw new StationException(
                 `Station Handler "${handler.getName()}" failed validation:\n${e.message}`,
                 ProcessExceptionType.VALIDATION,
             );
@@ -279,7 +279,7 @@ export class A6sRailwayUtil {
         stationContext: StationContext,
     ): Promise<IRailWayStation> {
         const handler = handlers[s.name];
-        const result = <IHandlerReportRecord>{
+        const result = <IHandlerReport>{
             resolvers: [],
             handler: null,
         };

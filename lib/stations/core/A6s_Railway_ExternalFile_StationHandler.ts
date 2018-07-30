@@ -19,7 +19,7 @@ export class A6s_Railway_ExternalFile_StationHandler extends BaseStationHandler 
     async validate(options: any): Promise<void> {
         const result = Joi.validate(options, A6s_Railway_ExternalFile_StationHandler.OPTIONS_SCHEMA);
         if (result.error) {
-            throw new Error(result.error.details.map((d: any) => d.message).join('\n'));
+            throw new Error(result.error.details.map(d => d.message).join('\n'));
         }
     }
 

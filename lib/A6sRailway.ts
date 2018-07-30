@@ -3,7 +3,7 @@ import {BaseResolver, BaseStationHandler, StationContext} from './models';
 import {A6sRailwayUtil} from './services/utils';
 import {IOC} from './services';
 import {dirname} from 'path';
-import {ProcessException, ProcessExceptionType} from './exception';
+import {StationException, ProcessExceptionType} from './exception';
 
 export type A6sRailwayStationHandlersRegistry = {[name: string]: BaseStationHandler};
 export type A6sRailwayResolverRegistry = {[name: string]: BaseResolver};
@@ -100,7 +100,7 @@ export class A6sRailway {
                 );
                 workingDirectory = dirname(this.mapFile);
             } catch (e) {
-                throw new ProcessException(e.message, ProcessExceptionType.NOT_FOUNT);
+                throw new StationException(e.message, ProcessExceptionType.NOT_FOUND);
             }
         }
 

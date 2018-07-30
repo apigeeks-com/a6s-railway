@@ -1,15 +1,15 @@
 export class StationContext {
     constructor(
         private parentsPath: string[] = [],
-        private workingDirectory = '',
+        private workingDirectory = '.',
     ) {}
 
     getParentsPath() {
         return this.parentsPath;
     }
 
-    setParentsPath(parentsPath: string[]) {
-        this.parentsPath = parentsPath;
+    addParent(parent: string) {
+        this.parentsPath = [...this.parentsPath, parent];
     }
 
     getWorkingDirectory() {
@@ -17,6 +17,6 @@ export class StationContext {
     }
 
     clone() {
-        return new StationContext(this.getParentsPath(), this.getWorkingDirectory());
+        return new StationContext([...this.getParentsPath()], this.getWorkingDirectory());
     }
 }
