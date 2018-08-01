@@ -13,7 +13,15 @@ interface IK8sObject {
 const IK8sObject_JOI_SCHEMA = Joi.object({
     kind: Joi.string().required(),
     apiVersion: Joi.string().required(),
-    metadata: Joi.any().required(),
+    metadata: Joi
+        .object({
+            name: Joi.string().required()
+        })
+        .options({
+            abortEarly: true,
+            allowUnknown: true,
+        })
+        .required(),
 }).options({
     abortEarly: true,
     allowUnknown: true,
