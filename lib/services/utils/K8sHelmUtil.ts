@@ -125,6 +125,27 @@ export class K8sHelmUtil {
     }
 
     /**
+     * Get k8s objects in helm
+     *
+     * @param {string} name
+     * @return {Promise<IK8sObject[]>}
+     */
+    async getHelmObjects(name: string) {
+        const helmResult = await this.childProcessUtil.exec(`helm get ${name}`);
+
+        if (helmResult.stdout.indexOf('Error') === 0) {
+            throw new Error(helmResult.stdout);
+        }
+
+        const objects = helmResult.stdout.split('---\n');
+        objects.shift();
+
+        return objects.map((rawObject: string) => {
+            return yaml.safeLoad(rawObject.replace(/^\#.*Source.+?$/m, ''));
+        });
+    }
+
+    /**
      * Get information about helm deployment
      * @param {string} name
      * @returns {Promise<IHelmDeploymentInfo>}
