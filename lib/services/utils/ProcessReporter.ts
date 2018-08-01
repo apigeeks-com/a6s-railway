@@ -27,6 +27,15 @@ export class ProcessReporter {
     }
 
     /**
+     *  Returned deployed stations
+     *
+     * @return {Array<string[], number>}
+     */
+    public getProcessLog() {
+        return [...this.handlers];
+    }
+
+    /**
      * Returned process report
      *
      * @return {IReport}
