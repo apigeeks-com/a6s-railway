@@ -1,1 +1,1 @@
-export * from './ICleanupOptions';
+export * from './IK8sCleanupOptions';

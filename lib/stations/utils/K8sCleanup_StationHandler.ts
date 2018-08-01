@@ -1,10 +1,10 @@
 import {BaseStationHandler, StationContext} from '../../models';
 import * as Joi from 'joi';
 import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
-import {CleanupUtil} from '../../services/utils/CleanupUtil';
+import {K8sClenupUtil} from '../../services/utils';
 import {IOC} from '../../services';
 
-export class Cleanup_StationHandler extends BaseStationHandler {
+export class K8sCleanup_StationHandler extends BaseStationHandler {
     getName(): string {
         return 'a6s.cleanup';
     }
@@ -12,10 +12,11 @@ export class Cleanup_StationHandler extends BaseStationHandler {
     static OPTIONS_SCHEMA = Joi
         .object()
         .keys({
+            cleanup: Joi.boolean().default(false),
             namespace: Joi.string().default('default'),
             allowed: Joi.object({
-                storageClass: Joi.array().min(1).items(Joi.string().required()),
-                pvc: Joi.array().min(1).items(Joi.string().required()),
+                storageClasses: Joi.array().min(1).items(Joi.string().required()),
+                persistentVolumeClaims: Joi.array().min(1).items(Joi.string().required()),
                 helms: Joi.array().min(1).items(Joi.string().required()),
                 secrets: Joi.array().min(1).items(Joi.string().required()),
                 configMaps: Joi.array().min(1).items(Joi.string().required()),
@@ -32,7 +33,7 @@ export class Cleanup_StationHandler extends BaseStationHandler {
      * @return {Promise<void>}
      */
     async validate(options: any): Promise<void> {
-        const result = Joi.validate(options, Cleanup_StationHandler.OPTIONS_SCHEMA);
+        const result = Joi.validate(options, K8sCleanup_StationHandler.OPTIONS_SCHEMA);
 
         if (result.error) {
             throw new Error(result.error.details.map(d => d.message).join('\n'));
@@ -52,7 +53,7 @@ export class Cleanup_StationHandler extends BaseStationHandler {
         resolvers: A6sRailwayResolverRegistry,
         stationContext: StationContext,
     ): Promise<void> {
-        const cleanupUtil: CleanupUtil = IOC.get(CleanupUtil);
+        const cleanupUtil: K8sClenupUtil = IOC.get(K8sClenupUtil);
 
         await cleanupUtil.clean(options);
     }

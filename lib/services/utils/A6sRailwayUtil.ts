@@ -1,4 +1,5 @@
 import {readFile} from 'fs';
+import chalk from 'chalk';
 import * as jsyaml from 'js-yaml';
 import * as deepmerge from 'deepmerge';
 import {resolve, isAbsolute} from 'path';
@@ -306,19 +307,21 @@ export class A6sRailwayUtil {
             }
         }
 
-        console.log(`-> Checking if should run ${s.name}`);
+        const level = stationContext.getParentsPath().map(p => '  ').join('');
+
+        console.log(chalk.yellow(`${level} Checking if should run ${chalk.green(s.name)}`));
         const options = await this.resolveOptionsForStationHandler(s, handler, stationContext);
         const shouldRun = await handler.isShouldRun(options, handlers, resolvers);
 
         if (shouldRun) {
-            console.log(`-> Executing ${s.name}`);
+            console.log(chalk.yellow(`${level} Executing ${chalk.green(s.name)}`));
             const handlerResult = await handler.run(options, handlers, resolvers, stationContext);
 
             if (handlerResult) {
                 result.handler = handlerResult;
             }
         } else {
-            console.log(`-> Execution skipped for ${s.name}`);
+            console.log(chalk.blue(`${level} Execution skipped for ${chalk.green(s.name)}`));
         }
 
         this.processReporter.registerHandler([...stationContext.getParentsPath()], s, result, options);
