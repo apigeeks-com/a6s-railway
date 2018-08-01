@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import {ProcessReporter} from './lib/services/utils';
 import {IOC} from './lib/services';
 import {ContextResolver, ShellCmdStdOutResolver} from './lib/resolvers';
+import {Cleanup_StationHandler} from './lib/stations/utils/Cleanup_StationHandler';
 
 // prepare commander
 commander
@@ -62,6 +63,7 @@ new A6sRailway(commander.map)
         new plugins.K8s_Secret_TLS_StationHandler(),
 
         new plugins.Write_File_StationHandler(),
+        new plugins.Cleanup_StationHandler(),
 
         // resolvers
         new ContextResolver(),
