@@ -18,6 +18,7 @@
   "author": "API Geeks LLC",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^2.4.1",
     "commander": "2.15.1",
     "deepmerge": "2.1.1",
     "ejs": "2.6.1",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@types/chai": "4.0.10",
+    "@types/chalk": "^2.2.0",
     "@types/deepmerge": "2.1.0",
     "@types/ejs": "2.6.0",
     "@types/flat": "0.0.28",
