@@ -82,6 +82,16 @@
                            {
                               "type": "cmd",
                               "payload": {
+                                 "k8sObject": {
+                                    "apiVersion": "v1",
+                                    "kind": "ConfigMap",
+                                    "metadata": {
+                                       "name": "shared-config"
+                                    },
+                                    "data": {
+                                       "default.json": "{\n  \"tree\": {\n      \"key1\": {\n          \"enabled\": true\n      },\n\n      \"key2\": {\n          \"enabled\": truea\n      }\n  },\n}"
+                                    }
+                                 },
                                  "code": 0,
                                  "stdout": "",
                                  "stderr": "",
@@ -107,6 +117,17 @@
                            {
                               "type": "cmd",
                               "payload": {
+                                 "k8sObject": {
+                                    "apiVersion": "v1",
+                                    "kind": "Secret",
+                                    "metadata": {
+                                       "name": "docker-credentials"
+                                    },
+                                    "type": "kubernetes.io/dockerconfigjson",
+                                    "data": {
+                                       ".dockerconfigjson": "eyJhdXRocyI6eyJkb2NrZXIuc2VydmVyLmNvbSI6eyJ1c2VybmFtZSI6ImZvbyIsInBhc3N3b3JkIjoiYm9vIiwiZW1haWwiOiJmb29AYm9vLmNvbSIsImF1dGgiOiJabTl2T21KdmJ3PT0ifX19"
+                                    }
+                                 },
                                  "code": 0,
                                  "stdout": "",
                                  "stderr": "",
@@ -307,6 +328,17 @@
                                  {
                                     "type": "cmd",
                                     "payload": {
+                                       "k8sObject": {
+                                          "apiVersion": "v1",
+                                          "kind": "Secret",
+                                          "metadata": {
+                                             "name": "credentials"
+                                          },
+                                          "type": "Opaque",
+                                          "data": {
+                                             "credentials.json": "ewogICJhcGlLZXkiOiAiZm9vIiwKICAiZW5kcG9pbnQiOiAiaHR0cDovL2Jvby5jb20iCn0="
+                                          }
+                                       },
                                        "code": 0,
                                        "stdout": "",
                                        "stderr": "",
@@ -384,6 +416,16 @@
                                  {
                                     "type": "cmd",
                                     "payload": {
+                                       "k8sObject": {
+                                          "apiVersion": "v1",
+                                          "kind": "ConfigMap",
+                                          "metadata": {
+                                             "name": "config"
+                                          },
+                                          "data": {
+                                             "default.js": "module.exports ={\n    port: 8080\n};"
+                                          }
+                                       },
                                        "code": 0,
                                        "stdout": "",
                                        "stderr": "",
