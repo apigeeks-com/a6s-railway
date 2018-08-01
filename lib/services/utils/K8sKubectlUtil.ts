@@ -145,4 +145,29 @@ export class K8sKubectlUtil {
 
         throw new Error('Unexpected error occurred ' + JSON.stringify(result));
     }
+
+    /**
+     * Get k8s objects
+     *
+     * @param {string} kind
+     * @param {string} namespace
+     * @return {Promise<string[]>}
+     */
+    async listObjects(kind: string, namespace = ''): Promise<string[]> {
+        const cmd = [`kubectl get ${kind}`];
+
+        if (namespace !== '') {
+            cmd.push('--namespace ' + namespace);
+        }
+
+        cmd.push('-o name');
+
+        const result = await this.childProcessUtil.exec(cmd.join(' '));
+
+        return result.stdout
+            .split('\n')
+            .map(l => l.trim().split('/').pop())
+            .filter(l => l)
+        ;
+    }
 }
