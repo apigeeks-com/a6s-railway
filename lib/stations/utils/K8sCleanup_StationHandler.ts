@@ -55,6 +55,6 @@ export class K8sCleanup_StationHandler extends BaseStationHandler {
     ): Promise<void> {
         const cleanupUtil: K8sClenupUtil = IOC.get(K8sClenupUtil);
 
-        await cleanupUtil.clean(options);
+        await cleanupUtil.cleanup(options);
     }
 }
