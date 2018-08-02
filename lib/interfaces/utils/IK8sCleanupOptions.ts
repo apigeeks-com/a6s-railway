@@ -1,5 +1,5 @@
 export interface IK8sCleanupOptions {
-    cleanup: boolean;
+    dryRun: boolean;
     namespace: string;
     allowed?: {
         storageClass?: string[],

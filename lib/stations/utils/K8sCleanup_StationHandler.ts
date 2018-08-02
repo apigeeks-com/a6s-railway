@@ -12,7 +12,7 @@ export class K8sCleanup_StationHandler extends BaseStationHandler {
     static OPTIONS_SCHEMA = Joi
         .object()
         .keys({
-            cleanup: Joi.boolean().default(false),
+            dryRun: Joi.boolean().default(false),
             namespace: Joi.string().default('default'),
             allowed: Joi.object({
                 storageClasses: Joi.array().min(1).items(Joi.string().required()),

@@ -31,11 +31,11 @@ export class K8sClenupUtil {
             )
         );
 
-        await this.cleanHelm(options, deployedHelms);
-        await this.cleanConfigMap(options, allHelmObjects);
-        await this.cleanSecret(options, allHelmObjects);
-        await this.cleanStorageClass(options, allHelmObjects);
-        await this.cleanPersistentVolumeClaim(options, allHelmObjects);
+        await this.cleanupHelmReleases(options, deployedHelms);
+        await this.cleanupConfigMaps(options, allHelmObjects);
+        await this.cleanupSecrets(options, allHelmObjects);
+        await this.cleanupPersistentVolumeClaims(options, allHelmObjects);
+        await this.cleanupStorageClasses(options, allHelmObjects);
     }
 
     /**
@@ -43,7 +43,7 @@ export class K8sClenupUtil {
      * @param {string[]} deployedHelms
      * @return {Promise<void>}
      */
-    private async cleanHelm(options: IK8sCleanupOptions, deployedHelms: string[]) {
+    private async cleanupHelmReleases(options: IK8sCleanupOptions, deployedHelms: string[]) {
         const allowedHelms = [
             ...get(options, 'allowed.helms', []),
             ...deployedHelms
@@ -51,21 +51,18 @@ export class K8sClenupUtil {
 
         const diff = this.getDifferenceInstalled(await this.getClusterHelms(), allowedHelms);
 
-        if (options.cleanup) {
-            for (const name of diff) {
+        if (!options.dryRun) {
+            await Promise.all(diff.map(async (name) => {
                 try {
-                    this.k8sHelmUtil.remove(name, options.namespace)
-                        .then(() => {
-                            console.log(chalk.green(`Helm "${name}" deleted`));
-                        })
-                    ;
+                    await this.k8sHelmUtil.remove(name, options.namespace);
+                    console.log(chalk.green(`Helm "${name}" deleted`));
                 } catch (e) {
                     console.log(chalk.red(`Helm "${name}" not deleted: ${e.message}`));
                 }
-            }
-        } else {
+            }));
+        } else if (diff.length) {
             console.log(
-                chalk.green('Remove helms: '),
+                chalk.green('Helm releases to be removed: '),
                 chalk.yellow(diff.join(', '))
             );
         }
@@ -76,7 +73,7 @@ export class K8sClenupUtil {
      * @param {IK8sObject[]} allHelmObjects
      * @return {Promise<void>}
      */
-    private async cleanConfigMap(options: IK8sCleanupOptions, allHelmObjects: IK8sObject[]) {
+    private async cleanupConfigMaps(options: IK8sCleanupOptions, allHelmObjects: IK8sObject[]) {
         const allowedConfigMaps = [
             ...await this.getDeployedConfigMaps(),
             ...get(options, 'allowed.configMaps', []),
@@ -87,27 +84,26 @@ export class K8sClenupUtil {
 
         const diff = this.getDifferenceInstalled(await this.getClusterConfigMaps(), allowedConfigMaps);
 
-        if (options.cleanup) {
-            for (const name of diff) {
+        if (!options.dryRun) {
+            await Promise.all(diff.map(async (name) => {
                 try {
-                    this.k8sKubectlUtil.deleteObject({
+                    await this.k8sKubectlUtil
+                        .deleteObject({
                             apiVersion: 'v1',
                             kind: 'ConfigMap',
                             metadata: {
                                 name,
                             }
                         })
-                        .then(() => {
-                            console.log(chalk.green(`ConfigMap "${name}" deleted`));
-                        })
                     ;
+                    console.log(chalk.green(`ConfigMap "${name}" deleted`));
                 } catch (e) {
                     console.log(chalk.red(`ConfigMap "${name}" not deleted: ${e.message}`));
                 }
-            }
-        } else {
+            }));
+        } else if (diff.length) {
             console.log(
-                chalk.green('Remove Config Maps: '),
+                chalk.green('ConfigMaps to be removed: '),
                 chalk.yellow(diff.join(', '))
             );
         }
@@ -118,7 +114,7 @@ export class K8sClenupUtil {
      * @param {IK8sObject[]} allHelmObjects
      * @return {Promise<void>}
      */
-    private async cleanSecret(options: IK8sCleanupOptions, allHelmObjects: IK8sObject[]) {
+    private async cleanupSecrets(options: IK8sCleanupOptions, allHelmObjects: IK8sObject[]) {
         const allowedSecrets = [
             ...await this.getDeployedSecrets(),
             ...get(options, 'allowed.secrets', []),
@@ -129,10 +125,10 @@ export class K8sClenupUtil {
 
         const diff = this.getDifferenceInstalled(await this.getClusterSecrets(), allowedSecrets);
 
-        if (options.cleanup) {
-            for (const name of diff) {
+        if (!options.dryRun) {
+            await Promise.all(diff.map(async (name) => {
                 try {
-                    this.k8sKubectlUtil
+                    await this.k8sKubectlUtil
                         .deleteObject({
                             apiVersion: 'v1',
                             kind: 'Secret',
@@ -140,17 +136,15 @@ export class K8sClenupUtil {
                                 name,
                             }
                         })
-                        .then(() => {
-                            console.log(chalk.green(`Secret "${name}" deleted`));
-                        })
                     ;
+                    console.log(chalk.green(`Secret "${name}" deleted`));
                 } catch (e) {
                     console.log(chalk.red(`Secret "${name}" not deleted: ${e.message}`));
                 }
-            }
-        } else {
+            }));
+        } else if (diff.length) {
             console.log(
-                chalk.green('Remove Secrets: '),
+                chalk.green('Secrets to be removed: '),
                 chalk.yellow(diff.join(', '))
             );
         }
@@ -161,7 +155,7 @@ export class K8sClenupUtil {
      * @param {IK8sObject[]} allHelmObjects
      * @return {Promise<void>}
      */
-    private async cleanStorageClass(options: IK8sCleanupOptions, allHelmObjects: IK8sObject[]) {
+    private async cleanupStorageClasses(options: IK8sCleanupOptions, allHelmObjects: IK8sObject[]) {
         const allowedStorageClasses = [
             ...await this.getDeployedStorageClass(),
             ...get(options, 'allowed.storageClass', []),
@@ -172,10 +166,10 @@ export class K8sClenupUtil {
 
         const diff = this.getDifferenceInstalled(await this.getClusterStorageClass(), allowedStorageClasses);
 
-        if (options.cleanup) {
-            for (const name of diff) {
+        if (!options.dryRun) {
+            await Promise.all(diff.map(async (name) => {
                 try {
-                    this.k8sKubectlUtil
+                    await this.k8sKubectlUtil
                         .deleteObject({
                             apiVersion: 'v1',
                             kind: 'StorageClass',
@@ -183,17 +177,15 @@ export class K8sClenupUtil {
                                 name,
                             }
                         })
-                        .then(() => {
-                            console.log(chalk.green(`StorageClass "${name}" deleted`));
-                        })
                     ;
+                    console.log(chalk.green(`StorageClass "${name}" deleted`));
                 } catch (e) {
                     console.log(chalk.red(`StorageClass "${name}" not deleted: ${e.message}`));
                 }
-            }
-        } else {
+            }));
+        } else if (diff.length) {
             console.log(
-                chalk.green('Remove Storage Classes: '),
+                chalk.green('Storage Classes to be removed: '),
                 chalk.yellow(diff.join(', '))
             );
         }
@@ -204,7 +196,7 @@ export class K8sClenupUtil {
      * @param {IK8sObject[]} allHelmObjects
      * @return {Promise<void>}
      */
-    private async cleanPersistentVolumeClaim(options: IK8sCleanupOptions, allHelmObjects: IK8sObject[]) {
+    private async cleanupPersistentVolumeClaims(options: IK8sCleanupOptions, allHelmObjects: IK8sObject[]) {
         const allowedPersistentVolumeClaims = [
             ...await this.getDeployedPersistentVolumeClaim(),
             ...get(options, 'allowed.persistentVolumeClaims', []),
@@ -215,10 +207,10 @@ export class K8sClenupUtil {
 
         const diff = this.getDifferenceInstalled(await this.getClusterPersistentVolumeClaim(), allowedPersistentVolumeClaims);
 
-        if (options.cleanup) {
-            for (const name of diff) {
+        if (!options.dryRun) {
+            await Promise.all(diff.map(async (name) => {
                 try {
-                    this.k8sKubectlUtil
+                    await this.k8sKubectlUtil
                         .deleteObject({
                             apiVersion: 'v1',
                             kind: 'PersistentVolumeClaim',
@@ -226,17 +218,15 @@ export class K8sClenupUtil {
                                 name,
                             }
                         })
-                        .then(() => {
-                            console.log(chalk.green(`PersistentVolumeClaim "${name}" deleted`));
-                        })
                     ;
+                    console.log(chalk.green(`PersistentVolumeClaim "${name}" deleted`));
                 } catch (e) {
                     console.log(chalk.red(`PersistentVolumeClaim "${name}" not deleted: ${e.message}`));
                 }
-            }
-        } else {
+            }));
+        } else if (diff.length) {
             console.log(
-                chalk.green('Remove Persistent Volume Claims: '),
+                chalk.green('Persistent Volume Claims to be removed: '),
                 chalk.yellow(diff.join(', '))
             );
         }
@@ -343,7 +333,7 @@ export class K8sClenupUtil {
 
 
     /**
-     * Get installed storage class in the cluster
+     * Get installed storage classes in the cluster
      *
      * @param {string} namespace
      * @return {Promise<string[]>}
