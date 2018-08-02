@@ -38,7 +38,7 @@ const assert = require('assert');
     async getObject_NotFound(): Promise<void> {
         const k8sKubectlUtil: K8sKubectlUtil = IOC.get(K8sKubectlUtil);
 
-        this.result.code = 0;
+        this.result.code = 1;
         this.result.stderr = 'Error from server (NotFound): storageclasses.storage.k8s.io "test" not found';
         this.result.stdout = '';
 
@@ -150,26 +150,6 @@ const assert = require('assert');
     }
 
     @test()
-    async notFoundObject(): Promise<void> {
-        const k8sKubectlUtil: K8sKubectlUtil = IOC.get(K8sKubectlUtil);
-
-        this.result.code = 1;
-        this.result.stderr = 'Error from server (NotFound): storageclasses.storage.k8s.io "foo" not found';
-        this.result.stdout = '';
-
-        const obj = <IK8sObject> {
-            kind: 'StorageClass',
-            apiVersion: 'storage.k8s.io/v1',
-            metadata: {
-                name: 'foo',
-            },
-            provisioner: 'kubernetes.io/aws-ebs',
-        };
-
-        assert.strictEqual(await k8sKubectlUtil.deleteObject(obj), null);
-    }
-
-    @test()
     async notFoundDeleteObject(): Promise<void> {
         const k8sKubectlUtil: K8sKubectlUtil = IOC.get(K8sKubectlUtil);
 
@@ -177,16 +157,22 @@ const assert = require('assert');
         this.result.stderr = 'Error from server (NotFound): storageclasses.storage.k8s.io "foo" not found';
         this.result.stdout = '';
 
-        const obj = <IK8sObject> {
-            kind: 'StorageClass',
-            apiVersion: 'storage.k8s.io/v1',
-            metadata: {
-                name: 'foo',
-            },
-            provisioner: 'kubernetes.io/aws-ebs',
-        };
+        let result;
 
-        assert.strictEqual(await k8sKubectlUtil.deleteObject(obj), null);
+        try {
+            await k8sKubectlUtil.deleteObject(<IK8sObject> {
+                kind: 'StorageClass',
+                apiVersion: 'storage.k8s.io/v1',
+                metadata: {
+                    name: 'foo',
+                },
+                provisioner: 'kubernetes.io/aws-ebs',
+            });
+        } catch (e) {
+            result = e.message;
+        }
+
+        assert(result.indexOf('Error from server (NotFound)') > -1);
     }
 
     @test()
