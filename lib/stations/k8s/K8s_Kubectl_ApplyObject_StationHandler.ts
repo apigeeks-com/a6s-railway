@@ -59,7 +59,10 @@ export class K8s_Kubectl_ApplyObject_StationHandler extends BaseStationHandler {
         // create object
         return [<IReportRecord>{
             type: IReportRecordType.CMD,
-            payload: await this.k8sKubectlUtil.applyObject(<IK8sObject>options),
+            payload: {
+                k8sObject: options,
+                ...await this.k8sKubectlUtil.applyObject(<IK8sObject>options)
+            },
         }];
     }
 }

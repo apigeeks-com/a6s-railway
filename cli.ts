@@ -19,6 +19,7 @@ commander
         options.map = configPath;
     })
     .option('-o, --output <path>', 'Store execution report in given location')
+    .option('--no-color', 'Disable color')
 ;
 // parse environment variables
 commander.parse(process.argv);
@@ -62,6 +63,7 @@ new A6sRailway(commander.map)
         new plugins.K8s_Secret_TLS_StationHandler(),
 
         new plugins.Write_File_StationHandler(),
+        new plugins.K8sCleanup_StationHandler(),
 
         // resolvers
         new ContextResolver(),

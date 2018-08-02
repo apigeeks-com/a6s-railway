@@ -19,11 +19,10 @@ export class K8sHelmUtil {
     /**
      * Remove helm chart
      * @param {string} name
-     * @param {string} namespace
      * @return {Promise<void>}
      */
-    async remove(name: string, namespace: string): Promise<IProcessResult> {
-        const cmd = `helm del --namespace ${namespace} --purge ${name}`;
+    async remove(name: string): Promise<IProcessResult> {
+        const cmd = `helm del --purge ${name}`;
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
@@ -122,6 +121,27 @@ export class K8sHelmUtil {
         const helmResult = await this.childProcessUtil.exec(`helm get ${name}`);
 
         return helmResult.stdout.trim() !== `Error: release: "${name}" not found`;
+    }
+
+    /**
+     * Get k8s objects in helm
+     *
+     * @param {string} name
+     * @return {Promise<IK8sObject[]>}
+     */
+    async getHelmObjects(name: string) {
+        const helmResult = await this.childProcessUtil.exec(`helm get ${name}`);
+
+        if (helmResult.stdout.indexOf('Error') === 0) {
+            throw new Error(helmResult.stdout);
+        }
+
+        const objects = helmResult.stdout.split('---\n');
+        objects.shift();
+
+        return objects.map((rawObject: string) => {
+            return yaml.safeLoad(rawObject.replace(/^\#.*Source.+?$/m, ''));
+        });
     }
 
     /**

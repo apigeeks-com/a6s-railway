@@ -28,15 +28,15 @@ export class K8sKubectlUtil {
     async deleteObject(k8sObject: IK8sObject): Promise<any> {
         const result = await this.childProcessUtil.exec(`kubectl delete ${k8sObject.kind} ${k8sObject.metadata.name}`);
 
+        if (result.code !== 0) {
+            throw new Error('Unexpected error occurred ' + JSON.stringify(result));
+        }
+
         if (result.stderr.trim().indexOf('Error from server (NotFound)') === 0) {
             return null;
         }
 
-        if (result.stdout) {
-            return result.stdout;
-        }
-
-        throw new Error('Unexpected error occurred ' + JSON.stringify(result));
+        return result.stdout;
     }
 
     /**
@@ -144,5 +144,30 @@ export class K8sKubectlUtil {
         }
 
         throw new Error('Unexpected error occurred ' + JSON.stringify(result));
+    }
+
+    /**
+     * Get k8s objects
+     *
+     * @param {string} kind
+     * @param {string} namespace
+     * @return {Promise<string[]>}
+     */
+    async listObjects(kind: string, namespace = ''): Promise<string[]> {
+        const cmd = [`kubectl get ${kind}`];
+
+        if (namespace !== '') {
+            cmd.push('--namespace ' + namespace);
+        }
+
+        cmd.push('-o name');
+
+        const result = await this.childProcessUtil.exec(cmd.join(' '));
+
+        return result.stdout
+            .split('\n')
+            .map(l => l.trim().split('/').pop())
+            .filter(l => l)
+        ;
     }
 }
