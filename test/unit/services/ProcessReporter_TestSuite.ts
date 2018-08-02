@@ -7,6 +7,7 @@ import {A6sRailway} from '../../../lib/A6sRailway';
 import * as fs from 'fs';
 import {MockProcessReporter} from '../../helpers/MockProcessReporter';
 import * as util from 'util';
+import {MockA6sRailwayExternalFileStationHandler} from '../../helpers/MockA6sRailwayExternalFileStationHandler';
 
 const assert = require('assert');
 
@@ -65,7 +66,7 @@ const assert = require('assert');
     private getRailway(configMap: any) {
         return (new A6sRailway(configMap))
             .register([
-                new plugins.A6s_Railway_ExternalFile_StationHandler(),
+                new MockA6sRailwayExternalFileStationHandler(),
                 new plugins.A6s_Railway_ParallelExecution_StationHandler(),
                 new plugins.A6s_Railway_SequenceExecution_StationHandler(),
                 new plugins.K8s_Helm_Deployment_StationHandler(),
