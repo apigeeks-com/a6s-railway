@@ -34,42 +34,38 @@ export class K8sClenupUtil {
 
         await this.cleanupHelmReleases(options, deployedHelms);
 
-        await this.cleanupK8sObject(
+        await this.cleanupK8sObjects(
             'ConfigMap',
             allHelmObjects,
             await this.getDeployedConfigMaps(),
-            await this.getClusterConfigMaps(),
-            options.namespace,
+            await this.getClusterConfigMaps(options.namespace),
             get(options, 'allowed.configMaps', []),
             options.dryRun
         );
 
-        await this.cleanupK8sObject(
+        await this.cleanupK8sObjects(
             'Secret',
             allHelmObjects,
             await this.getDeployedSecrets(),
-            await this.getClusterSecrets(),
-            options.namespace,
+            await this.getClusterSecrets(options.namespace),
             get(options, 'allowed.secrets', []),
             options.dryRun
         );
 
-        await this.cleanupK8sObject(
+        await this.cleanupK8sObjects(
             'PersistentVolumeClaim',
             allHelmObjects,
-            await this.getDeployedPersistentVolumeClaim(),
-            await this.getClusterPersistentVolumeClaim(),
-            options.namespace,
+            await this.getDeployedPersistentVolumeClaims(),
+            await this.getClusterPersistentVolumeClaims(options.namespace),
             get(options, 'allowed.persistentVolumeClaims', []),
             options.dryRun
         );
 
-        await this.cleanupK8sObject(
+        await this.cleanupK8sObjects(
             'StorageClass',
             allHelmObjects,
-            await this.getDeployedStorageClass(),
-            await this.getClusterStorageClass(),
-            options.namespace,
+            await this.getDeployedStorageClasses(),
+            await this.getClusterStorageClasses(options.namespace),
             get(options, 'allowed.storageClass', []),
             options.dryRun
         );
@@ -98,7 +94,7 @@ export class K8sClenupUtil {
         if (!options.dryRun) {
             await Promise.all(diff.map(async (name) => {
                 try {
-                    await this.k8sHelmUtil.remove(name, options.namespace);
+                    await this.k8sHelmUtil.remove(name);
                     console.log(chalk.green(`Helm "${name}" deleted`));
                 } catch (e) {
                     console.log(chalk.red(`Helm "${name}" not deleted: ${e.message}`));
@@ -117,17 +113,15 @@ export class K8sClenupUtil {
      * @param {IK8sObject[]} allHelmObjects
      * @param {string[]} deployed
      * @param {string[]} cluster
-     * @param {string} namespace
      * @param {string[]} allowedPatterns
      * @param {boolean} dryRun
      * @return {Promise<void>}
      */
-    private async cleanupK8sObject(
+    private async cleanupK8sObjects(
         kind: string,
         allHelmObjects: IK8sObject[],
         deployed: string[],
         cluster: string[],
-        namespace: string,
         allowedPatterns: string[],
         dryRun: boolean
     ) {
@@ -226,7 +220,7 @@ export class K8sClenupUtil {
      *
      * @return {Promise<string[]>}
      */
-    private async getDeployedStorageClass() {
+    private async getDeployedStorageClasses() {
         return this.getK8sObjects()
             .filter(o => o.kind === 'StorageClass')
             .map(o => o.metadata.name)
@@ -238,7 +232,7 @@ export class K8sClenupUtil {
      *
      * @return {Promise<string[]>}
      */
-    private async getDeployedPersistentVolumeClaim() {
+    private async getDeployedPersistentVolumeClaims() {
         return this.getK8sObjects()
             .filter(o => o.kind === 'PersistentVolumeClaim')
             .map(o => o.metadata.name)
@@ -281,7 +275,7 @@ export class K8sClenupUtil {
      * @param {string} namespace
      * @return {Promise<string[]>}
      */
-    private async getClusterStorageClass(namespace = '') {
+    private async getClusterStorageClasses(namespace = '') {
         return await this.k8sKubectlUtil.listObjects('StorageClass', namespace);
     }
 
@@ -291,7 +285,7 @@ export class K8sClenupUtil {
      * @param {string} namespace
      * @return {Promise<string[]>}
      */
-    private async getClusterPersistentVolumeClaim(namespace = '') {
+    private async getClusterPersistentVolumeClaims(namespace = '') {
         return await this.k8sKubectlUtil.listObjects('PersistentVolumeClaim', namespace);
     }
 

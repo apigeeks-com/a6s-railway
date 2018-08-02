@@ -19,10 +19,9 @@ export class K8sHelmUtil {
     /**
      * Remove helm chart
      * @param {string} name
-     * @param {string} namespace
      * @return {Promise<void>}
      */
-    async remove(name: string, namespace: string): Promise<IProcessResult> {
+    async remove(name: string): Promise<IProcessResult> {
         const cmd = `helm del --purge ${name}`;
         const result = await this.childProcessUtil.exec(cmd);
 

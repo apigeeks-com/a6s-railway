@@ -27,7 +27,7 @@ export class ProcessReporter {
     }
 
     /**
-     *  Returned deployed stations
+     *  Returns deployed stations
      *
      * @return {Array<string[], number>}
      */
@@ -36,7 +36,7 @@ export class ProcessReporter {
     }
 
     /**
-     * Returned process report
+     * Returns process report
      *
      * @return {IReport}
      */
