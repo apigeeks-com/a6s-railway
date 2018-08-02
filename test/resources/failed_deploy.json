@@ -123,7 +123,7 @@
                "report": {
                   "error": [
                      {
-                        "exception": "ENOENT: no such file or directory, open '/Users/igor/projects/a6s-railway/test/resources/failed_deploy/service4.yml'",
+                        "exception": "ENOENT: no such file or directory",
                         "type": "not_fount"
                      }
                   ]
