@@ -28,15 +28,15 @@ export class K8sKubectlUtil {
     async deleteObject(k8sObject: IK8sObject): Promise<any> {
         const result = await this.childProcessUtil.exec(`kubectl delete ${k8sObject.kind} ${k8sObject.metadata.name}`);
 
+        if (result.code !== 0) {
+            throw new Error('Unexpected error occurred ' + JSON.stringify(result));
+        }
+
         if (result.stderr.trim().indexOf('Error from server (NotFound)') === 0) {
             return null;
         }
 
-        if (result.stdout) {
-            return result.stdout;
-        }
-
-        throw new Error('Unexpected error occurred ' + JSON.stringify(result));
+        return result.stdout;
     }
 
     /**
