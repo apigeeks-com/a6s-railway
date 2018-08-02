@@ -19,6 +19,7 @@ commander
         options.map = configPath;
     })
     .option('-o, --output <path>', 'Store execution report in given location')
+    .option('--no-color', 'Disable color')
 ;
 // parse environment variables
 commander.parse(process.argv);
