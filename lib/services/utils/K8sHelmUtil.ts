@@ -23,7 +23,7 @@ export class K8sHelmUtil {
      * @return {Promise<void>}
      */
     async remove(name: string, namespace: string): Promise<IProcessResult> {
-        const cmd = `helm del --namespace ${namespace} --purge ${name}`;
+        const cmd = `helm del --purge ${name}`;
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
