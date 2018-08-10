@@ -26,7 +26,12 @@ export class K8s_Secret_Generic_StationHandler extends K8s_Kubectl_ApplyObject_S
             .keys({
                 name: Joi.string().required(),
                 namespace: Joi.string().optional(),
-                files: Joi.array().min(1).items(Joi.string().required()).optional(),
+                files: Joi.alternatives(
+                    Joi.string(),
+                    Joi.array()
+                        .min(1)
+                        .items(Joi.string().required())
+                ).optional(),
                 inline: Joi.object()
                     .pattern(
                         /[\w|\d]+/,
@@ -89,6 +94,10 @@ export class K8s_Secret_Generic_StationHandler extends K8s_Kubectl_ApplyObject_S
         }
 
         if (options.files) {
+            if (typeof(options.files) === 'string') {
+                options.files = options.files.split(',').map((f: string) => f.trim());
+            }
+
             for (const file of options.files) {
                 object.data[basename(file)] = await this.loadFile(file, stationContext.getWorkingDirectory());
             }

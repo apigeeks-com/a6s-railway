@@ -10,6 +10,7 @@ import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../
 import {ProcessReporter} from './';
 import {IOC} from '../';
 import {IHandlerReport} from '../../interfaces';
+import {homedir} from 'os';
 import {ParallelProcessingException, StationException, ProcessExceptionType} from '../../exception';
 
 const ejsLint = require('ejs-lint');
@@ -53,6 +54,11 @@ export class A6sRailwayUtil {
      * @return {string}
      */
     getAbsolutePath(path: string, workingDirectory?: string): string {
+        if (path.indexOf('~') === 0) {
+            return resolve(homedir(), path.replace('~/', ''))
+        }
+
+
         if (!isAbsolute(path)) {
             return resolve(workingDirectory || '.',  path);
         }
