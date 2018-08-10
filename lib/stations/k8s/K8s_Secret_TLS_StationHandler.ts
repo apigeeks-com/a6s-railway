@@ -1,11 +1,12 @@
 import * as Joi from 'joi';
-import * as fs from 'fs';
 import {IK8sObject, IReportRecord} from '../../interfaces';
 import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import {IOC} from '../../services';
 import {A6sRailwayUtil} from '../../services/utils';
 import {K8s_Kubectl_ApplyObject_StationHandler} from './K8s_Kubectl_ApplyObject_StationHandler';
 import {StationContext} from '../../models';
+import {promisify} from 'util';
+import {readFile} from 'fs';
 
 export class K8s_Secret_TLS_StationHandler extends K8s_Kubectl_ApplyObject_StationHandler {
     /**
@@ -74,12 +75,9 @@ export class K8s_Secret_TLS_StationHandler extends K8s_Kubectl_ApplyObject_Stati
             object.metadata.namespace = options.namespace;
         }
 
-        object.data = {
-            tls: {},
-        };
-
-        object.data.tls.crt = await this.loadFile(options.cert, stationContext.getWorkingDirectory());
-        object.data.tls.key = await this.loadFile(options.key, stationContext.getWorkingDirectory());
+        object.data = {};
+        object.data['tls.crt'] = await this.loadFile(options.cert, stationContext.getWorkingDirectory());
+        object.data['tls.key'] = await this.loadFile(options.key, stationContext.getWorkingDirectory());
 
         return await super.run(object, handlers, resolvers, stationContext);
     }
@@ -87,20 +85,13 @@ export class K8s_Secret_TLS_StationHandler extends K8s_Kubectl_ApplyObject_Stati
     /**
      * @param {string} filePath
      * @param {string} workingDirectory
-     * @return {Promise<any>}
+     * @return {Promise<string>} Base64 encoded string
      */
-    protected async loadFile(filePath: string, workingDirectory: string): Promise<any> {
+    protected async loadFile(filePath: string, workingDirectory: string): Promise<string> {
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
         filePath = a6sRailwayUtil.getAbsolutePath(filePath, workingDirectory);
 
-        return new Promise((resolve, reject) => {
-            fs.readFile(filePath, (err, fileData) => {
-                if (!err) {
-                    resolve(fileData.toString('base64'));
-                } else {
-                    reject(err);
-                }
-            });
-        });
+        const fileData = await promisify(readFile)(filePath);
+        return fileData.toString('base64');
     }
 }
