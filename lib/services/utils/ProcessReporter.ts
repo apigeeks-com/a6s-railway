@@ -16,6 +16,12 @@ export class ProcessReporter {
         report: IHandlerReport,
         options?: any,
     ) {
+        const reportObject = this.handlers.get(path);
+
+        if (reportObject && reportObject.options) {
+            options = Object.assign(reportObject.options, options || {});
+        }
+
         this.handlers.set(
             path,
             {
@@ -57,6 +63,7 @@ export class ProcessReporter {
 
         return {
             name: firstHandler.station.name,
+            description: firstHandler.station.description,
             options: firstHandler.options,
             report: firstHandler.report,
             children: this.buildTreeReport(processPath, handlers)
@@ -84,6 +91,7 @@ export class ProcessReporter {
 
                 return {
                     name: h.station.name,
+                    description: h.station.description,
                     options: h.options,
                     report: h.report,
                     children: this.buildTreeReport(processPath, handlers)
