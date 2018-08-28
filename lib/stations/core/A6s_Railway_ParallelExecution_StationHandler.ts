@@ -55,6 +55,8 @@ export class A6s_Railway_ParallelExecution_StationHandler extends BaseStationHan
         await Promise.all(promises);
 
         if (parallelException.getExceptions().length) {
+            console.log(parallelException.getExceptions());
+
             throw parallelException;
         }
     }
