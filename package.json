@@ -15,6 +15,20 @@
   "bin": {
     "rw": "dist/cli.js"
   },
+  "keywords": [
+    "kubernetes",
+    "k8s",
+    "deployment",
+    "aws",
+    "google cloud",
+    "azure",
+    "cluster",
+    "devops",
+    "flows",
+    "kubernetes flows",
+    "cli",
+    "nodejs"
+  ],
   "author": "API Geeks LLC",
   "license": "MIT",
   "dependencies": {
