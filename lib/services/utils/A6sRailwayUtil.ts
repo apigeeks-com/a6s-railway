@@ -323,7 +323,7 @@ export class A6sRailwayUtil {
         this.processReporter.registerHandler(stationContext.getParentsPath(), s, result, options);
 
         if (shouldRun) {
-            console.log(chalk.yellow(`${level} Executing ${chalk.green(s.name)}`));
+            console.log(chalk.yellow(`${level} Executing ${chalk.green(s.description || s.name)}`));
 
             const handlerResult = await handler.run(options, handlers, resolvers, stationContext);
 
@@ -331,7 +331,7 @@ export class A6sRailwayUtil {
                 result.handler = handlerResult;
             }
         } else {
-            console.log(chalk.blue(`${level} Execution skipped for ${chalk.green(s.name)}`));
+            console.log(chalk.blue(`${level} Execution skipped for ${chalk.green(s.description || s.name)}`));
         }
 
 
