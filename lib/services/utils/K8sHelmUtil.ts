@@ -54,15 +54,19 @@ export class K8sHelmUtil {
             'helm upgrade --install'
         ];
 
-        if (config.hasOwnProperty('namespace')) {
+        if (config.namespace) {
             cmd.push('--namespace ' + config.namespace);
+        }
+
+        if (config.tillerNamespace) {
+            cmd.push('--tiller-namespace ' + config.tillerNamespace);
         }
 
         if (config.hasOwnProperty('timeout')) {
             cmd.push('--timeout ' + config.timeout);
         }
 
-        if (config.hasOwnProperty('wait')) {
+        if (config.wait) {
             cmd.push('--wait');
         }
 

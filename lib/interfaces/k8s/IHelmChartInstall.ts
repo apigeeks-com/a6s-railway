@@ -12,6 +12,11 @@ interface IHelmChartInstall {
     namespace?: string;
 
     /**
+     * Optional tiller namespace
+     */
+    tillerNamespace?: string;
+
+    /**
      * Chart name (including repo prefix) to install, e.g: stable/rabbitmq or path to local file
      */
     chart: string;
