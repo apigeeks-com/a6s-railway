@@ -6,7 +6,7 @@ import {resolve, isAbsolute} from 'path';
 import {IRailWayResolver, IRailWayStation} from '../../interfaces/core';
 import {render} from 'ejs';
 import {BaseStationHandler, BaseResolver, StationContext} from '../../models';
-import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';
+import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry, A6sRailway} from '../../A6sRailway';
 import {ProcessReporter} from './';
 import {IOC} from '../';
 import {IHandlerReport} from '../../interfaces';
@@ -54,15 +54,16 @@ export class A6sRailwayUtil {
      * @return {string}
      */
     getAbsolutePath(path: string, workingDirectory?: string): string {
+        A6sRailway.debug(`Looking for absolute path of ${path} with working directory ${workingDirectory}...`);
         if (path.indexOf('~') === 0) {
             return resolve(homedir(), path.replace('~/', ''))
         }
-
 
         if (!isAbsolute(path)) {
             return resolve(workingDirectory || '.',  path);
         }
 
+        A6sRailway.debug(`Absolute path: ${path}`);
         return path;
     }
 
@@ -81,11 +82,13 @@ export class A6sRailwayUtil {
         resolvers: A6sRailwayResolverRegistry,
         stationContext: StationContext,
     ): Promise<IRailWayStation> {
+        A6sRailway.debug(`Processing station ${s.name}...`);
         stationContext.addParent(`${s.name}${this.handlerIndex++}`);
 
-        try {
+        try {            
             return await this._processStation(s, handlers, resolvers, stationContext);
         } catch (e) {
+            A6sRailway.debug(`Error ocurred upon processing station ${s.name}...`, e);
             let exceptions = [];
 
             if (e instanceof ParallelProcessingException) {
@@ -128,9 +131,12 @@ export class A6sRailwayUtil {
      * @return {Promise<string>}
      */
     readStringFile(file: string): Promise<string> {
+        A6sRailway.debug(`Reading string file at path ${file}`);
+        
         return new Promise<any>((res, rej) => {
             readFile(file, 'utf8', (err, str) => {
                 if (err) {
+                    A6sRailway.debug(`Error ocurred upon reading file at path ${file}`, err);
                     return rej(err);
                 }
 
@@ -146,8 +152,9 @@ export class A6sRailwayUtil {
      * @return {Promise<any>}
      */
     async readYamlFile(file: string): Promise<any> {
+        console.log('')
         const yaml = await this.readStringFile(file);
-
+        A6sRailway.debug(`Parsing string file content as YAML...`);
         return jsyaml.safeLoad(yaml);
     }
 
@@ -176,7 +183,10 @@ export class A6sRailwayUtil {
             return fileOptions;
         }
 
-        return deepmerge(fileOptions, station.options);
+        A6sRailway.debug(`Merging options...`);
+        const result = deepmerge(fileOptions, station.options);
+        A6sRailway.debug(`Merging options complete.`);
+        return result;
     }
 
     /**
@@ -188,6 +198,7 @@ export class A6sRailwayUtil {
      */
     _processOptionsTemplate(options: any): any {
         if (options) {
+            A6sRailway.debug(`Processing options template...`);
             let yaml = jsyaml.dump(options);
 
             try {
@@ -206,6 +217,8 @@ export class A6sRailwayUtil {
             }
 
             options = jsyaml.safeLoad(yaml);
+        } else {
+            A6sRailway.debug(`No need to preocess options template`);
         }
 
         return options;
@@ -224,12 +237,16 @@ export class A6sRailwayUtil {
         resolver: BaseResolver,
         stationContext: StationContext
     ): Promise<any> {
+        A6sRailway.debug(`Resolving options for resolver`);
         let options = await this._resolveOptions(config, stationContext);
         options = this._processOptionsTemplate(options);
 
         try {
+            A6sRailway.debug(`Validating resolver options...`);
             await resolver.validate(options);
+            A6sRailway.debug(`Validation passed`);
         } catch (e) {
+            A6sRailway.debug(`Validation failed with error:`, e);
             throw new StationException(
                 `Resolver "${resolver.getName()}" failed validation:\n${e.message}`,
                 ProcessExceptionType.VALIDATION,
@@ -252,6 +269,7 @@ export class A6sRailwayUtil {
         handler: BaseStationHandler,
         stationContext: StationContext
     ): Promise<any> {
+        A6sRailway.debug(`Resolving options for station handler`);
         let options = await this._resolveOptions(station, stationContext);
 
         if (handler.isShouldProcessVariablesInOptions()) {
@@ -259,8 +277,11 @@ export class A6sRailwayUtil {
         }
 
         try {
+            A6sRailway.debug(`Validating station options...`);
             await handler.validate(options);
+            A6sRailway.debug(`Validation passed`);
         } catch (e) {
+            A6sRailway.debug(`Validation failed with error:`, e);
             throw new StationException(
                 `Station Handler "${handler.getName()}" failed validation:\n${e.message}`,
                 ProcessExceptionType.VALIDATION,
@@ -292,21 +313,25 @@ export class A6sRailwayUtil {
         };
 
         if (!handler) {
+            A6sRailway.debug(`Unable to execute deployment. Plugin "${s.name}" is not registered`);
             throw new Error(`Unable to execute deployment. Plugin "${s.name}" is not registered`);
         }
 
         if (s.resolvers) {
             for (const name in s.resolvers) {
+                A6sRailway.debug(`Processing resolver ${name} for station "${s.name}"`);
                 const config: IRailWayResolver = s.resolvers[name];
                 const resolver = resolvers[config.name];
 
                 if (!resolver) {
+                    A6sRailway.debug(`Unable to execute deployment. Resolver "${config.name}" is not registered`);
                     throw new Error(`Unable to execute deployment. Resolver "${config.name}" is not registered`);
                 }
 
                 const _options = await this.resolveOptionsForResolver(config, resolver, stationContext);
+                A6sRailway.debug(`Running resolver ${name} for station "${s.name}"`);
                 const resolverResult = await resolver.run(name, _options, this.getSharedContext(), resolvers);
-
+                A6sRailway.debug(`Resolver ${name} for station "${s.name}" complete`);
                 if (resolverResult) {
                     result.resolvers.push(resolverResult);
                 }
@@ -315,6 +340,7 @@ export class A6sRailwayUtil {
 
         const level = stationContext.getParentsPath().map(p => '  ').join('');
 
+        A6sRailway.debug(`Looking for description for station "${s.name}"`);
         const getDescription = (station: IRailWayStation) =>
             station.description ? chalk.cyan(station.description) : chalk.green(station.name)
         ;
@@ -337,9 +363,7 @@ export class A6sRailwayUtil {
         } else {
             console.log(chalk.blue(`${level} Execution skipped for ${getDescription(s)}`));
         }
-
-
-
+        
         return s;
     }
 }

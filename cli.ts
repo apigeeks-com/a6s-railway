@@ -20,6 +20,7 @@ commander
     })
     .option('-o, --output <path>', 'Store execution report in given location')
     .option('--no-color', 'Disable color')
+    .option('--debug', 'Print additional debug information')
 ;
 // parse environment variables
 commander.parse(process.argv);
@@ -43,6 +44,8 @@ const saveReport = (reportPath: string) => {
         fs.writeFileSync(reportPath, JSON.stringify(processReporter.getReport(), null, '   '));
     }
 };
+
+A6sRailway.debugEnabled = commander.debug;
 
 new A6sRailway(commander.map)
     .register([

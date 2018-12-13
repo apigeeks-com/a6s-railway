@@ -4,6 +4,7 @@ import {ChildProcessUtil} from './ChildProcessUtil';
 import {IOC} from '../IOC';
 import {A6sRailwayUtil} from './A6sRailwayUtil';
 import {StationException, ProcessExceptionType} from '../../exception';
+import { A6sRailway } from '../../A6sRailway';
 
 const tmp = require('tmp-promise');
 const fs = require('fs');
@@ -22,10 +23,12 @@ export class K8sHelmUtil {
      * @return {Promise<void>}
      */
     async remove(name: string): Promise<IProcessResult> {
+        A6sRailway.debug(`Removing helm release "${name}"...`);
         const cmd = `helm del --purge ${name}`;
         const result = await this.childProcessUtil.exec(cmd);
 
         if (result.code !== 0) {
+            A6sRailway.debug(`Removing of helm release "${name}" failed.`);
             throw new StationException(
                 result.stderr,
                 ProcessExceptionType.CMD,
@@ -33,6 +36,7 @@ export class K8sHelmUtil {
             );
         }
 
+        A6sRailway.debug(`Removing of helm release "${name}" successfully completed.`);
         return {
             code: result.code,
             stdout: result.stdout,
@@ -48,6 +52,7 @@ export class K8sHelmUtil {
      * @return {Promise<void>}
      */
     async updateOrInstall(config: IHelmChartInstall, workingDirectory: string): Promise<IProcessResult> {
+        A6sRailway.debug(`Installing or updating helm chart ${config.chart}...`);
         const a6sRailwayUtil = IOC.get(A6sRailwayUtil);
 
         const cmd = [
@@ -87,6 +92,7 @@ export class K8sHelmUtil {
         const result = await this.childProcessUtil.exec(cmd.join(' '));
 
         if (result.code !== 0) {
+            A6sRailway.debug(`Installing or updating helm chart ${config.chart} failed.`);
             throw new StationException(
                 result.stderr,
                 ProcessExceptionType.CMD,
@@ -94,6 +100,7 @@ export class K8sHelmUtil {
             );
         }
 
+        A6sRailway.debug(`Installing or updating helm chart ${config.chart} passed.`);
         return {
             code: result.code,
             stdout: result.stdout,
@@ -107,6 +114,7 @@ export class K8sHelmUtil {
      * @returns {Promise<string[]>}
      */
     async listInstalledHelms(): Promise<string[]> {
+        A6sRailway.debug(`Looking for installed helm charts.`);
         const result = await this.childProcessUtil.exec('helm list -q');
 
         return result.stdout
@@ -122,6 +130,7 @@ export class K8sHelmUtil {
      * @returns {Promise<boolean>}
      */
     async isDeploymentExists(name: string): Promise<boolean> {
+        A6sRailway.debug(`Checking if helm chart deployment exists`);
         const helmResult = await this.childProcessUtil.exec(`helm get ${name}`);
 
         return helmResult.stdout.trim() !== `Error: release: "${name}" not found`;
@@ -134,6 +143,7 @@ export class K8sHelmUtil {
      * @return {Promise<IK8sObject[]>}
      */
     async getHelmObjects(name: string) {
+        A6sRailway.debug(`Getting k8s objects related to helm chart with name ${name}`);
         const helmResult = await this.childProcessUtil.exec(`helm get ${name}`);
 
         if (helmResult.stdout.indexOf('Error') === 0) {
@@ -154,6 +164,7 @@ export class K8sHelmUtil {
      * @returns {Promise<IHelmDeploymentInfo>}
      */
     async getHelmDeployment(name: string): Promise<IHelmDeploymentInfo> {
+        A6sRailway.debug(`Getting helm deployment ${name} information`);
         const helmResult = await this.childProcessUtil.exec(`helm get ${name}`);
 
         if (helmResult.stdout.indexOf('Error') === 0) {

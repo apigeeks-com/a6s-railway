@@ -1,6 +1,6 @@
 {
   "name": "a6s-railway",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "K8s deployment orchestration tool.",
   "main": "index.js",
   "scripts": {

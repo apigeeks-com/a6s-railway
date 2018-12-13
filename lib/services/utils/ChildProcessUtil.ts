@@ -1,4 +1,5 @@
 import {exec} from 'child_process';
+import { A6sRailway } from '../../A6sRailway';
 
 export class ChildProcessUtil {
     /**
@@ -7,6 +8,7 @@ export class ChildProcessUtil {
      * @returns {Promise<{stdout: string, stderr: string}>}
      */
     exec(command: string): Promise<{stdout: string, stderr: string, code: number}> {
+        A6sRailway.debug(`Executing command "${command}"...`);
         return new Promise<{stdout: string, stderr: string, code: number}>((resolve) => {
             exec(command, (err, stdout, stderr) => {
                 stdout = stdout && stdout.trim();
@@ -20,6 +22,8 @@ export class ChildProcessUtil {
                         code = _err.code;
                     }
                 }
+
+                A6sRailway.debug(`Command "${command}" completed with code: ${code}`);
 
                 resolve({stdout, stderr, code});
             });

@@ -1,5 +1,6 @@
 import {IRailWayStation} from '../../interfaces/core';
 import {IReport, IHandlerReport} from '../../interfaces';
+import { A6sRailway } from '../../A6sRailway';
 
 export class ProcessReporter {
     protected handlers: Map<string[], any> = new Map();
@@ -16,6 +17,7 @@ export class ProcessReporter {
         report: IHandlerReport,
         options?: any,
     ) {
+        A6sRailway.debug(`Registering handler in report...`);        
         const reportObject = this.handlers.get(path);
 
         if (reportObject && reportObject.options) {
@@ -47,6 +49,7 @@ export class ProcessReporter {
      * @return {IReport}
      */
     public getReport(): IReport {
+        A6sRailway.debug(`Gettring report...`);        
         const handlers: any[] = [...this.handlers].sort(([a]: any, [b]: any) => {
             return a.length - b.length;
         });
@@ -76,6 +79,7 @@ export class ProcessReporter {
      * @return {any[]}
      */
     protected buildTreeReport(parent: string[], handlers: any[]): any[] {
+        A6sRailway.debug(`Building report tree...`);        
         return handlers
             .filter(([p, h]) => {
                 const processPath = p.length ? p : [h.station.name];

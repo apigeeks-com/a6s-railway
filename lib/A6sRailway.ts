@@ -17,6 +17,8 @@ export class A6sRailway {
     private mapFile: string;
     private a6sRailwayUtil: A6sRailwayUtil;
 
+    public static debugEnabled: false;
+
     constructor(
         map: IRailwayMap | string,
         private stationContext?: StationContext,
@@ -34,6 +36,12 @@ export class A6sRailway {
         this.handlers = {};
         this.resolvers = {};
         this.a6sRailwayUtil = IOC.get(A6sRailwayUtil);
+    }
+
+    static debug(message?: any, ...optionalParams: any[]): void {
+        if (A6sRailway.debugEnabled) {
+            console.log.apply(this, ['[DEBUG]', message, ...optionalParams]);
+        }
     }
 
     /**
@@ -75,6 +83,7 @@ export class A6sRailway {
      * @returns {A6sRailway}
      */
     public register(entry: BaseStationHandler | BaseResolver | Array<BaseStationHandler | BaseResolver>): A6sRailway {
+        A6sRailway.debug(`Registering plugins/resolvers...`);
         if (Array.isArray(entry)) {
             for (const i in entry) {
                 this._register(entry[i]);
@@ -91,6 +100,7 @@ export class A6sRailway {
      * @returns {Promise<A6sRailway>}
      */
     async execute(): Promise<A6sRailway> {
+        A6sRailway.debug(`Executing the flow...`);
         let workingDirectory = this.stationContext.getWorkingDirectory();
 
         if (!this.map) {
