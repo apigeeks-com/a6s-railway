@@ -1,5 +1,5 @@
 import {BaseStationHandler, StationContext} from '../../models';
-import {A6sRailwayUtil} from '../../services/utils';
+import {A6sRailwayUtil} from '../../utils';
 import {IOC} from '../../services';
 import {IRailWayStation_JOI_SCHEMA} from '../../interfaces/core';
 import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry} from '../../A6sRailway';

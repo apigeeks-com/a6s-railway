@@ -1,5 +1,5 @@
 import {exec} from 'child_process';
-import { A6sRailway } from '../../A6sRailway';
+import { A6sRailway } from '../A6sRailway';
 
 export class ChildProcessUtil {
     /**

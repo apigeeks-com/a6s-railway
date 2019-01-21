@@ -1,6 +1,6 @@
 import {IRailwayMap} from './interfaces';
 import {BaseResolver, BaseStationHandler, StationContext} from './models';
-import {A6sRailwayUtil} from './services/utils';
+import { A6sRailwayUtil } from './utils';
 import {IOC} from './services';
 import {dirname} from 'path';
 import {StationException, ProcessExceptionType} from './exception';

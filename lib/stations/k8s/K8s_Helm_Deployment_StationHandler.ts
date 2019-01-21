@@ -1,6 +1,6 @@
 import {BaseStationHandler, StationContext} from '../../models';
 import {IHelmChartInstall, IReportRecord, IReportRecordType} from '../../interfaces';
-import {K8sHelmUtil} from '../../services/utils';
+import {K8sHelmUtil} from '../../utils';
 import {IOC} from '../../services';
 import * as Joi from 'joi';
 import {IHelmChartInstall_JOI_SCHEMA} from '../../interfaces/k8s';

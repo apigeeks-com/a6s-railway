@@ -3,7 +3,7 @@ import {A6sRailway, A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistr
 import * as Joi from 'joi';
 import {resolve} from 'path';
 import {IOC} from '../../services';
-import {A6sRailwayUtil} from '../../services/utils';
+import {A6sRailwayUtil} from '../../utils';
 
 export class A6s_Railway_ExternalFile_StationHandler extends BaseStationHandler {
     getName(): string {

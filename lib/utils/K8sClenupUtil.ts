@@ -1,11 +1,11 @@
 import {get, flattenDeep, difference} from 'lodash';
 import chalk from 'chalk';
 import * as minimatch from 'minimatch';
-import {IOC} from '../IOC';
+import {IOC} from '../services/IOC';
 import {K8sHelmUtil} from './K8sHelmUtil';
 import {K8sKubectlUtil} from './K8sKubectlUtil';
 import {ProcessReporter} from './ProcessReporter';
-import {IK8sCleanupOptions, IK8sObject, IReportRecord} from '../../interfaces';
+import {IK8sCleanupOptions, IK8sObject, IReportRecord} from '../interfaces/index';
 
 export class K8sClenupUtil {
     private k8sHelmUtil: K8sHelmUtil;

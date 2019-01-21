@@ -1,5 +1,6 @@
 import { suite, test } from 'mocha-typescript';
-import {IOC, ChildProcessUtil} from '../../../lib/services';
+import {IOC} from '../../../lib/services';
+import {ChildProcessUtil} from '../../../lib/utils';
 
 const assert = require('assert');
 

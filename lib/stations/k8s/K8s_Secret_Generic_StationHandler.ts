@@ -4,7 +4,7 @@ import {IK8sObject, IReportRecord} from '../../interfaces';
 import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import {basename} from 'path';
 import {IOC} from '../../services';
-import {A6sRailwayUtil} from '../../services/utils';
+import {A6sRailwayUtil} from '../../utils';
 import {K8s_Kubectl_ApplyObject_StationHandler} from './K8s_Kubectl_ApplyObject_StationHandler';
 import {StationContext} from '../../models';
 
