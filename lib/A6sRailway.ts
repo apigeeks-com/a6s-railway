@@ -40,7 +40,7 @@ export class A6sRailway {
 
     static debug(message?: any, ...optionalParams: any[]): void {
         if (A6sRailway.debugEnabled) {
-            console.log('[DEBUG]', message, ...optionalParams);
+            console.log.apply(this, ['[DEBUG]', message, ...optionalParams]);
         }
     }
 
@@ -100,11 +100,6 @@ export class A6sRailway {
      * @returns {Promise<A6sRailway>}
      */
     async execute(): Promise<A6sRailway> {
-        IOC.get(K8sKubectlUtil);
-        IOC.get(ChildProcessUtil);
-        IOC.get(A6sRailwayUtil);
-        IOC.get(ProcessReporter);
-
         A6sRailway.debug(`Executing the flow...`);
         let workingDirectory = this.stationContext.getWorkingDirectory();
 

@@ -120,7 +120,7 @@ export class A6sRailwayUtil {
                 }
             );
 
-            throw e;
+            throw new Error(e.message);
         }
     }
 
