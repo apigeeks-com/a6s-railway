@@ -8,25 +8,14 @@ import {ProcessReporter} from './ProcessReporter';
 import {IK8sCleanupOptions, IK8sObject, IReportRecord} from '../interfaces/index';
 
 export class K8sClenupUtil {
-    /**
-     * @return {K8sHelmUtil}
-     */
-    private get k8sHelmUtil(): K8sHelmUtil {
-        return IOC.get(K8sHelmUtil);
-    }
+    private k8sHelmUtil: K8sHelmUtil;
+    private k8sKubectlUtil: K8sKubectlUtil;
+    private processReporter: ProcessReporter;
 
-    /**
-     * @return {K8sKubectlUtil}
-     */
-    private get k8sKubectlUtil(): K8sKubectlUtil {
-        return IOC.get(K8sKubectlUtil);
-    }
-
-    /**
-     * @return {ProcessReporter}
-     */
-    private get processReporter(): ProcessReporter {
-        return IOC.get(ProcessReporter);
+    constructor() {
+        this.k8sHelmUtil = IOC.get(K8sHelmUtil);
+        this.k8sKubectlUtil = IOC.get(K8sKubectlUtil);
+        this.processReporter = IOC.get(ProcessReporter);
     }
 
     /**
