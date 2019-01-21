@@ -4,7 +4,7 @@ import {A6sRailway} from '../../lib/A6sRailway';
 import {IRailwayMap} from '../../lib/interfaces/index';
 import {MockResolver} from '../helpers/MockResolver';
 import {MockStationHandler} from '../helpers/MockStationHandler';
-import {A6sRailwayUtil} from '../../lib/services/utils';
+import {A6sRailwayUtil} from '../../lib/utils';
 import {IOC} from '../../lib/services';
 const assert = require('assert');
 

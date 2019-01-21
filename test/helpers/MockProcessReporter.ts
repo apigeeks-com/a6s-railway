@@ -1,4 +1,4 @@
-import {ProcessReporter} from '../../lib/services/utils';
+import {ProcessReporter} from '../../lib/utils';
 import {IHandlerReport} from '../../lib/interfaces';
 import {IRailWayStation} from '../../lib/interfaces/core';
 

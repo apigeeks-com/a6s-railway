@@ -1,6 +1,6 @@
 import {IRailwayMap} from './interfaces';
 import {BaseResolver, BaseStationHandler, StationContext} from './models';
-import {A6sRailwayUtil} from './services/utils';
+import { A6sRailwayUtil, ChildProcessUtil, K8sKubectlUtil, ProcessReporter } from './utils';
 import {IOC} from './services';
 import {dirname} from 'path';
 import {StationException, ProcessExceptionType} from './exception';
@@ -40,7 +40,7 @@ export class A6sRailway {
 
     static debug(message?: any, ...optionalParams: any[]): void {
         if (A6sRailway.debugEnabled) {
-            console.log.apply(this, ['[DEBUG]', message, ...optionalParams]);
+            console.log('[DEBUG]', message, ...optionalParams);
         }
     }
 
@@ -100,6 +100,11 @@ export class A6sRailway {
      * @returns {Promise<A6sRailway>}
      */
     async execute(): Promise<A6sRailway> {
+        IOC.get(K8sKubectlUtil);
+        IOC.get(ChildProcessUtil);
+        IOC.get(A6sRailwayUtil);
+        IOC.get(ProcessReporter);
+
         A6sRailway.debug(`Executing the flow...`);
         let workingDirectory = this.stationContext.getWorkingDirectory();
 

@@ -1,10 +1,10 @@
-import {IHelmDeploymentInfo, IHelmChartInstall, IProcessResult} from '../../interfaces';
+import {IHelmDeploymentInfo, IHelmChartInstall, IProcessResult} from '../interfaces/index';
 import * as yaml from 'js-yaml';
 import {ChildProcessUtil} from './ChildProcessUtil';
-import {IOC} from '../IOC';
+import {IOC} from '../services/IOC';
 import {A6sRailwayUtil} from './A6sRailwayUtil';
-import {StationException, ProcessExceptionType} from '../../exception';
-import { A6sRailway } from '../../A6sRailway';
+import {StationException, ProcessExceptionType} from '../exception/index';
+import { A6sRailway } from '../A6sRailway';
 
 const tmp = require('tmp-promise');
 const fs = require('fs');

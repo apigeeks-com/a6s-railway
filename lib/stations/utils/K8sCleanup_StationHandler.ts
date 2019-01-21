@@ -1,7 +1,7 @@
 import {BaseStationHandler, StationContext} from '../../models';
 import * as Joi from 'joi';
 import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
-import {K8sClenupUtil} from '../../services/utils';
+import {K8sClenupUtil} from '../../utils';
 import {IOC} from '../../services';
 
 export class K8sCleanup_StationHandler extends BaseStationHandler {

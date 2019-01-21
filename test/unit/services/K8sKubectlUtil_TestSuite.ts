@@ -1,6 +1,7 @@
 import { suite, test } from 'mocha-typescript';
-import {IOC, ChildProcessUtil} from '../../../lib/services';
-import {K8sKubectlUtil} from '../../../lib/services/utils';
+import {IOC} from '../../../lib/services';
+import {ChildProcessUtil} from '../../../lib/utils';
+import {K8sKubectlUtil} from '../../../lib/utils';
 import {IK8sObject} from '../../../lib/interfaces/k8s';
 import {readFileSync} from 'fs';
 import * as jsyaml from 'js-yaml';

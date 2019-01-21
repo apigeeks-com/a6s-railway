@@ -1,6 +1,6 @@
-import {IRailWayStation} from '../../interfaces/core';
-import {IReport, IHandlerReport} from '../../interfaces';
-import { A6sRailway } from '../../A6sRailway';
+import {IRailWayStation} from '../interfaces/core/index';
+import {IReport, IHandlerReport} from '../interfaces/index';
+import { A6sRailway } from '../A6sRailway';
 
 export class ProcessReporter {
     protected handlers: Map<string[], any> = new Map();

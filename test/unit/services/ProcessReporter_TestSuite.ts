@@ -1,7 +1,8 @@
 import { suite, test } from 'mocha-typescript';
-import {IOC, ChildProcessUtil} from '../../../lib/services';
+import {IOC} from '../../../lib/services';
+import {ChildProcessUtil} from '../../../lib/utils';
 import * as path from 'path';
-import {ProcessReporter} from '../../../lib/services/utils';
+import {ProcessReporter} from '../../../lib/utils';
 import * as plugins from '../../../lib/stations';
 import {A6sRailway} from '../../../lib/A6sRailway';
 import * as fs from 'fs';

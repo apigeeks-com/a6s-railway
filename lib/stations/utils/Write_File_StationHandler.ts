@@ -6,7 +6,7 @@ import * as util from 'util';
 import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
 import {BaseStationHandler, StationContext} from '../../models';
 import {IOC} from '../../services';
-import {A6sRailwayUtil} from '../../services/utils';
+import {A6sRailwayUtil} from '../../utils';
 
 export class Write_File_StationHandler extends BaseStationHandler {
     /**

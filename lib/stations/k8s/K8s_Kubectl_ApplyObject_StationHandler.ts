@@ -1,6 +1,7 @@
 import {BaseStationHandler, StationContext} from '../../models';
 import {IK8sObject, IReportRecord, IReportRecordType} from '../../interfaces';
-import {IOC, K8sKubectlUtil} from '../../services';
+import {IOC} from '../../services';
+import {K8sKubectlUtil} from '../../utils';
 import * as Joi from 'joi';
 import {IK8sObject_JOI_SCHEMA} from '../../interfaces/k8s';
 import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';

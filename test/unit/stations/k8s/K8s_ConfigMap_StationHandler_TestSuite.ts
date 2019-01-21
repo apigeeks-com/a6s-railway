@@ -2,7 +2,8 @@ import { suite, test } from 'mocha-typescript';
 import {A6sRailway} from '../../../../lib/A6sRailway';
 import {IRailwayMap} from '../../../../lib/interfaces';
 import {AssertHelper} from '../../../helpers/AssertHelper';
-import {ChildProcessUtil, IOC} from '../../../../lib/services';
+import {IOC} from '../../../../lib/services';
+import {ChildProcessUtil} from '../../../../lib/utils';
 import {K8s_ConfigMap_StationHandler} from '../../../../lib/stations/k8s';
 import {resolve} from 'path';
 

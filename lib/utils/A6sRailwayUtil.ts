@@ -3,15 +3,15 @@ import chalk from 'chalk';
 import * as jsyaml from 'js-yaml';
 import * as deepmerge from 'deepmerge';
 import {resolve, isAbsolute} from 'path';
-import {IRailWayResolver, IRailWayStation} from '../../interfaces/core';
+import {IRailWayResolver, IRailWayStation} from '../interfaces/core/index';
 import {render} from 'ejs';
-import {BaseStationHandler, BaseResolver, StationContext} from '../../models';
-import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry, A6sRailway} from '../../A6sRailway';
-import {ProcessReporter} from './';
-import {IOC} from '../';
-import {IHandlerReport} from '../../interfaces';
+import {BaseStationHandler, BaseResolver, StationContext} from '../models/index';
+import {A6sRailwayStationHandlersRegistry, A6sRailwayResolverRegistry, A6sRailway} from '../A6sRailway';
+import {ProcessReporter} from './index';
+import {IOC} from '../services/index';
+import {IHandlerReport} from '../interfaces/index';
 import {homedir} from 'os';
-import {ParallelProcessingException, StationException, ProcessExceptionType} from '../../exception';
+import {ParallelProcessingException, StationException, ProcessExceptionType} from '../exception/index';
 
 const ejsLint = require('ejs-lint');
 
@@ -120,7 +120,7 @@ export class A6sRailwayUtil {
                 }
             );
 
-            throw new Error(e.message);
+            throw e;
         }
     }
 

@@ -3,7 +3,8 @@ import {A6sRailway} from '../../../../lib/A6sRailway';
 import {IRailwayMap} from '../../../../lib/interfaces';
 import {K8s_Secret_TLS_StationHandler} from '../../../../lib/stations/k8s';
 import {AssertHelper} from '../../../helpers/AssertHelper';
-import {ChildProcessUtil, IOC} from '../../../../lib/services';
+import {IOC} from '../../../../lib/services';
+import {ChildProcessUtil} from '../../../../lib/utils';
 import {resolve} from 'path';
 
 @suite class K8s_Secret_TLS_StationHandler_TestSuite {

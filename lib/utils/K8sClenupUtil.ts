@@ -1,21 +1,32 @@
 import {get, flattenDeep, difference} from 'lodash';
 import chalk from 'chalk';
 import * as minimatch from 'minimatch';
-import {IOC} from '../IOC';
+import {IOC} from '../services/IOC';
 import {K8sHelmUtil} from './K8sHelmUtil';
 import {K8sKubectlUtil} from './K8sKubectlUtil';
 import {ProcessReporter} from './ProcessReporter';
-import {IK8sCleanupOptions, IK8sObject, IReportRecord} from '../../interfaces';
+import {IK8sCleanupOptions, IK8sObject, IReportRecord} from '../interfaces/index';
 
 export class K8sClenupUtil {
-    private k8sHelmUtil: K8sHelmUtil;
-    private k8sKubectlUtil: K8sKubectlUtil;
-    private processReporter: ProcessReporter;
+    /**
+     * @return {K8sHelmUtil}
+     */
+    private get k8sHelmUtil(): K8sHelmUtil {
+        return IOC.get(K8sHelmUtil);
+    }
 
-    constructor() {
-        this.k8sHelmUtil = IOC.get(K8sHelmUtil);
-        this.k8sKubectlUtil = IOC.get(K8sKubectlUtil);
-        this.processReporter = IOC.get(ProcessReporter);
+    /**
+     * @return {K8sKubectlUtil}
+     */
+    private get k8sKubectlUtil(): K8sKubectlUtil {
+        return IOC.get(K8sKubectlUtil);
+    }
+
+    /**
+     * @return {ProcessReporter}
+     */
+    private get processReporter(): ProcessReporter {
+        return IOC.get(ProcessReporter);
     }
 
     /**

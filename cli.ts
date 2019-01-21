@@ -6,7 +6,7 @@ import {A6sRailway} from './lib/A6sRailway';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import * as fs from 'fs';
-import {ProcessReporter} from './lib/services/utils';
+import {ProcessReporter} from './lib/utils';
 import {IOC} from './lib/services';
 import {ContextResolver, ShellCmdStdOutResolver} from './lib/resolvers';
 
