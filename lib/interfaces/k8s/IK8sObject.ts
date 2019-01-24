@@ -12,7 +12,7 @@ interface IK8sObject {
 
 const IK8sObject_JOI_SCHEMA = Joi.object({
     kind: Joi.string().required(),
-    apiVersion: Joi.string().required(),
+    apiVersion: Joi.string(),
     metadata: Joi
         .object({
             name: Joi.string().required()
