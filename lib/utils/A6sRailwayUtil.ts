@@ -175,8 +175,14 @@ export class A6sRailwayUtil {
             return station.options;
         }
 
+        // path may be an EJS template
+        const path = render(station.options_file, {
+            env: process.env,
+            context: this.getSharedContext()
+        });
+
         const fileOptions = await this.readYamlFile(
-            this.getAbsolutePath(station.options_file, stationContext.getWorkingDirectory())
+            this.getAbsolutePath(path, stationContext.getWorkingDirectory())
         );
 
         if (!station.options) {
