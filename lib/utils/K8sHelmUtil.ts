@@ -89,15 +89,22 @@ export class K8sHelmUtil {
         cmd.push(config.name);
         cmd.push(a6sRailwayUtil.getAbsolutePath(config.chart, workingDirectory));
 
-        const result = await this.childProcessUtil.exec(cmd.join(' '));
+        let result = await this.childProcessUtil.exec(cmd.join(' '));
 
         if (result.code !== 0) {
-            A6sRailway.debug(`Installing or updating helm chart ${config.chart} failed.`);
-            throw new StationException(
-                result.stderr,
-                ProcessExceptionType.CMD,
-                {cmd, ... <IProcessResult>result}
-            );
+            cmd.pop();
+            cmd.push(config.chart);
+
+            result = await this.childProcessUtil.exec(cmd.join(' '));
+            
+            if (result.code !== 0) {
+                A6sRailway.debug(`Installing or updating helm chart ${config.chart} failed.`);
+                throw new StationException(
+                    result.stderr,
+                    ProcessExceptionType.CMD,
+                    {cmd, ... <IProcessResult>result}
+                );
+            }
         }
 
         A6sRailway.debug(`Installing or updating helm chart ${config.chart} passed.`);
