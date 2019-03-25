@@ -12,12 +12,15 @@ import {IOC} from '../services/index';
 import {IHandlerReport} from '../interfaces/index';
 import {homedir} from 'os';
 import {ParallelProcessingException, StationException, ProcessExceptionType} from '../exception/index';
+import { isObject, isBasicType, isMissing } from 'object-collider';
 
 const ejsLint = require('ejs-lint');
 
 export class A6sRailwayUtil {
     private sharedContext: any;
     private handlerIndex = 0;
+
+    private static LINK_REGEX = /^\s*\$link:(env|context)((\.[^.]+)+)?\s*$/;
 
     constructor() {
         this.purgeSharedContext();
@@ -176,10 +179,11 @@ export class A6sRailwayUtil {
         }
 
         // path may be an EJS template
-        const path = render(station.options_file, {
+        let path = render(station.options_file, {
             env: process.env,
-            context: this.getSharedContext()
+            context: this.getSharedContext()            
         });
+        path = this.resolveLinks(path);
 
         const fileOptions = await this.readYamlFile(
             this.getAbsolutePath(path, stationContext.getWorkingDirectory())
@@ -213,7 +217,7 @@ export class A6sRailwayUtil {
 
                 yaml = render(yaml, {
                     env: process.env,
-                    context: this.getSharedContext()
+                    context: this.getSharedContext()                    
                 });
             } catch (e) {
                 throw new StationException(
@@ -223,6 +227,7 @@ export class A6sRailwayUtil {
             }
 
             options = jsyaml.safeLoad(yaml);
+            options = this.resolveLinks(options);
         } else {
             A6sRailway.debug(`No need to preocess options template`);
         }
@@ -371,5 +376,78 @@ export class A6sRailwayUtil {
         }
         
         return s;
+    }
+
+    /**
+     * Resolve links
+     * Note: implementation of this method taken from https://raw.githubusercontent.com/FireBlinkLTD/fbl/develop/src/utils/ContextUtil.ts with author approval
+     * @param options
+     * @param parameters    
+     */
+    public resolveLinks(options: any): any {
+        if (isMissing(options)) {
+            return options;
+        }
+
+        if (isBasicType(options)) {
+            // if options is string - check if it matches pattern
+            if (typeof options === 'string') {
+                const match = options.match(A6sRailwayUtil.LINK_REGEX);
+                if (match) {
+                    let target: any;
+
+                    /* istanbul ignore else */
+                    if (match[1] === 'env') {
+                        target = process.env;
+                    } else if (match[1] === 'context') {
+                        target = this.getSharedContext();
+                    }
+
+                    if (match[2]) {
+                        const chunks = match[2].substring(1).split('.');
+                        for (const subPath of chunks) {
+                            if (!isObject(target)) {
+                                throw new Error(
+                                    `Unable to find reference match for "$.${match[1]}${
+                                        match[2]
+                                    }". Non-object value found upon traveling the path at "${subPath}".`,
+                                );
+                            }
+
+                            if (!target.hasOwnProperty(subPath)) {
+                                throw new Error(
+                                    `Unable to find reference match for "$.${match[1]}${
+                                        match[2]
+                                    }". Missing value found upon traveling the path at "${subPath}".`,
+                                );
+                            }
+
+                            target = target[subPath];
+                        }
+                    }
+
+                    return target;
+                }
+
+                return options;
+            }
+
+            // if not string - return it as is
+            return options;
+        }
+
+        if (Array.isArray(options)) {
+            return options.map(item => {
+                return this.resolveLinks(item);
+            });
+        }
+
+        // resolve object field values
+        const obj: any = {};
+        for (const key of Object.keys(options)) {
+            obj[key] = this.resolveLinks(options[key]);
+        }
+
+        return obj;
     }
 }

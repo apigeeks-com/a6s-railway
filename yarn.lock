@@ -1199,6 +1199,11 @@ object-assign@^4.0.1, object-assign@^4.1.0, object-assign@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
 
+object-collider@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/object-collider/-/object-collider-1.0.3.tgz#9a1de8b46f6ad187007c83d4658beb4d2d88baee"
+  integrity sha512-em48voKDt0DCE+cal/o18RGf7c/14q1bcrvuHjvk713y0Kzw5KXmNq9F9qiAla0j1HpMKAPBJvmsh9CTbGXn1A==
+
 once@^1.3.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/once/-/once-1.4.0.tgz#583b1aa775961d4b113ac17d9c50baef9dd76bd1"

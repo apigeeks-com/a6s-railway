@@ -49,6 +49,8 @@ options:
   b: <%- env.TEST %>
   # or context variables produced by resolvers (read below)
   c: <%- context.test %>
+  # alternativelly use `$link:<path>` syntax
+  d: '$link:context.test'
 # 2) Via external YAML file. External files are also handled as templates.
 options_file: 'external.options.yml'
 
@@ -176,3 +178,4 @@ options:
 ```
 
 In the example above `a6s.some.station1` will be triggered.
+
