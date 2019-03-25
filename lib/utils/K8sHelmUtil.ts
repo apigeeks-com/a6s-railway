@@ -71,6 +71,10 @@ export class K8sHelmUtil {
             cmd.push('--timeout ' + config.timeout);
         }
 
+        if (config.hasOwnProperty('version')) {
+            cmd.push('--version ' + config.version);
+        }
+
         if (config.wait) {
             cmd.push('--wait');
         }
