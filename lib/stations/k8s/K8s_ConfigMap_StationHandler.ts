@@ -1,12 +1,12 @@
-import {IK8sObject, IReportRecord} from '../../interfaces';
+import { IK8sObject, IReportRecord } from '../../interfaces';
 import * as Joi from 'joi';
-import {A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry} from '../../A6sRailway';
+import { A6sRailwayResolverRegistry, A6sRailwayStationHandlersRegistry } from '../../A6sRailway';
 import * as fs from 'fs';
-import {K8s_Kubectl_ApplyObject_StationHandler} from './K8s_Kubectl_ApplyObject_StationHandler';
-import {basename} from 'path';
-import {IOC} from '../../services';
-import {A6sRailwayUtil} from '../../utils';
-import {StationContext} from '../../models';
+import { K8s_Kubectl_ApplyObject_StationHandler } from './K8s_Kubectl_ApplyObject_StationHandler';
+import { basename } from 'path';
+import { IOC } from '../../services';
+import { A6sRailwayUtil } from '../../utils';
+import { StationContext } from '../../models';
 
 export class K8s_ConfigMap_StationHandler extends K8s_Kubectl_ApplyObject_StationHandler {
     /**
@@ -26,6 +26,12 @@ export class K8s_ConfigMap_StationHandler extends K8s_Kubectl_ApplyObject_Statio
             .keys({
                 name: Joi.string().required(),
                 namespace: Joi.string().optional(),
+                labels: Joi.object()
+                    .pattern(
+                        /[\w|\d]+/,
+                        Joi.alternatives([Joi.string(), Joi.number()]),
+                    )
+                    .optional(),
                 files: Joi.array().min(1).items(Joi.string().required()).optional(),
                 inline: Joi.object()
                     .pattern(
@@ -40,7 +46,7 @@ export class K8s_ConfigMap_StationHandler extends K8s_Kubectl_ApplyObject_Statio
                 abortEarly: true,
             })
             .or(['files', 'inline'])
-        ;
+            ;
     }
 
     /**
@@ -79,6 +85,10 @@ export class K8s_ConfigMap_StationHandler extends K8s_Kubectl_ApplyObject_Statio
 
         if (options.namespace) {
             object.metadata.namespace = options.namespace;
+        }
+
+        if (options.labels) {
+            object.metadata.labels = options.labels;
         }
 
         if (options.inline) {
