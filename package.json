@@ -44,7 +44,7 @@
     "minimatch": "3.0.4",
     "mkdirp": "0.5.1",
     "object-collider": "1.0.3",
-    "tmp-promise": "2.0.1"
+    "tmp-promise": "2.0.2"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
