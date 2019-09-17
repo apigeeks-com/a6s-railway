@@ -47,7 +47,7 @@
     "tmp-promise": "2.0.1"
   },
   "devDependencies": {
-    "@types/chai": "4.1.7",
+    "@types/chai": "4.2.3",
     "@types/deepmerge": "2.2.0",
     "@types/ejs": "2.6.3",
     "@types/flat": "0.0.28",
