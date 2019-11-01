@@ -51,7 +51,7 @@
     "@types/deepmerge": "2.2.0",
     "@types/ejs": "2.6.3",
     "@types/flat": "0.0.28",
-    "@types/joi": "14.3.3",
+    "@types/joi": "14.3.4",
     "@types/js-yaml": "3.12.1",
     "@types/lodash": "4.14.134",
     "@types/minimatch": "3.0.3",
